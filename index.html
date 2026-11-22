@@ -1,0 +1,1428 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>账簿通 Akaun</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Montserrat:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap">
+<style>
+/* Layout: e-wallet style app column — gradient hero with total receivable, floating shortcut card, soft tiles, bottom tab bar with raised centre button. Documents stay white A4 paper in both themes. */
+:root{
+  --g1:#2B4FE0; --g2:#7A3FE4;
+  --bg:#F2F5FC; --surface:#FFFFFF; --soft:#E9EFFC; --line:#DFE5F2; --fg:#14182B; --muted:#646B82;
+  --accent:#2B4FE0; --accent-soft:#E4EAFD; --accent-fg:#FFFFFF;
+  --warn:#B25E00; --warn-soft:#FFF0DB; --bad:#C2261A; --bad-soft:#FDE4E1; --good:#14804A; --good-soft:#DDF4E7;
+  --info:#2B4FE0; --info-soft:#E4EAFD;
+  --i-orange:#FF8A1F; --i-orange-bg:#FFF1E2; --i-violet:#6D4AF0; --i-violet-bg:#EEE9FE; --i-blue:#1E86F0; --i-blue-bg:#E3F1FE; --i-green:#13A36B; --i-green-bg:#DFF6EC; --i-pink:#E8457A; --i-pink-bg:#FDE6EE; --i-yellow:#E0A100; --i-yellow-bg:#FFF6D6;
+  --paper:#FFFFFF; --paper-ink:#1B1F2A; --paper-line:#DADFE8; --paper-muted:#666E80; --paper-accent:#2B4FE0;
+  --overlay:rgba(12,16,40,.55); --shadow:0 6px 24px rgba(30,45,110,.10);
+  --f-body:"Inter","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-head:"Space Grotesk","Inter","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1120; --surface:#181C30; --soft:#20263F; --line:#2A3050; --fg:#E7EAF5; --muted:#99A0BA;
+  --accent:#7D97FF; --accent-soft:#232C55; --accent-fg:#0B1030;
+  --warn:#F3A64A; --warn-soft:#3A2A14; --bad:#F27D72; --bad-soft:#3E1D1B; --good:#5ACD8C; --good-soft:#15321F; --info:#8DA4FF; --info-soft:#232C55;
+  --i-orange-bg:#3A2614; --i-violet-bg:#2A2350; --i-blue-bg:#16304A; --i-green-bg:#143326; --i-pink-bg:#3C1A28; --i-yellow-bg:#3A3112;
+  --overlay:rgba(0,0,0,.65); --shadow:0 6px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1120; --surface:#181C30; --soft:#20263F; --line:#2A3050; --fg:#E7EAF5; --muted:#99A0BA;
+  --accent:#7D97FF; --accent-soft:#232C55; --accent-fg:#0B1030;
+  --warn:#F3A64A; --warn-soft:#3A2A14; --bad:#F27D72; --bad-soft:#3E1D1B; --good:#5ACD8C; --good-soft:#15321F; --info:#8DA4FF; --info-soft:#232C55;
+  --i-orange-bg:#3A2614; --i-violet-bg:#2A2350; --i-blue-bg:#16304A; --i-green-bg:#143326; --i-pink-bg:#3C1A28; --i-yellow-bg:#3A3112;
+  --overlay:rgba(0,0,0,.65); --shadow:0 6px 24px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--g1)}
+h1,h2,h3{font-family:var(--f-head);text-wrap:balance;margin:0}
+.num{font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.hero{margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 18px);padding-bottom:64px;background:linear-gradient(120deg,var(--g1) 0%,var(--g1) 45%,var(--g2) 100%);color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-30%;top:-40%;width:90%;height:180%;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,0));transform:rotate(18deg);pointer-events:none}
+.hin{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;z-index:1}
+.topbar{display:flex;align-items:center;gap:10px}
+.chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:5px 12px 5px 5px;font-weight:600;color:#fff;max-width:60%;min-width:0}
+.chip .lg{width:28px;height:28px;border-radius:50%;background:#fff;color:var(--g1);display:grid;place-items:center;font-weight:700;font-family:var(--f-head);overflow:hidden;flex:none}
+.chip .lg img{width:100%;height:100%;object-fit:contain}
+.chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:#fff;color:#4A5068;border-radius:999px;padding:8px 14px;border:0;font-size:13.5px;text-align:left}
+.search svg{width:18px;height:18px;flex:none}
+.bal{display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;gap:12px;flex-wrap:wrap}
+.bal .l{opacity:.85;font-size:14px;display:flex;align-items:center;gap:6px}
+.bal .v{font-family:var(--f-head);font-size:34px;font-weight:700;line-height:1.15;margin-top:2px}
+.bal .s{opacity:.8;font-size:12.5px}
+.outline{border:1.5px solid #fff;background:none;color:#fff;border-radius:999px;padding:8px 16px;font-weight:600;white-space:nowrap}
+.outline:hover{background:rgba(255,255,255,.15)}
+.eye{background:none;border:0;color:#fff;padding:0;display:inline-grid}
+.eye svg{width:18px;height:18px}
+
+.body{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+.shortcuts{margin-top:-46px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:16px 8px 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:relative;z-index:2}
+.sc{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:4px;color:var(--fg);font-size:13px;font-weight:500;text-align:center;min-width:0}
+.sc .ib{width:52px;height:52px;border-radius:16px;display:grid;place-items:center}
+.sc .ib svg{width:28px;height:28px}
+.sc:hover .ib{transform:translateY(-2px)}
+.sc .ib{transition:transform .15s}
+.c-orange{background:var(--i-orange-bg);color:var(--i-orange)} .c-violet{background:var(--i-violet-bg);color:var(--i-violet)} .c-blue{background:var(--i-blue-bg);color:var(--i-blue)} .c-green{background:var(--i-green-bg);color:var(--i-green)} .c-pink{background:var(--i-pink-bg);color:var(--i-pink)} .c-yellow{background:var(--i-yellow-bg);color:var(--i-yellow)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:var(--soft);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;border:0;text-align:left;color:var(--fg);min-width:0}
+.card .ib{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.card b{display:block;font-size:14px}
+.card .v{font-family:var(--f-head);font-weight:700;font-size:16px}
+.card .s{font-size:12px;color:var(--muted)}
+.card.white{background:var(--surface);box-shadow:var(--shadow)}
+.sec{display:flex;justify-content:space-between;align-items:baseline}
+.sec h2{font-size:18px}
+.link{background:none;border:0;color:var(--accent);font-weight:600;padding:0}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 4px}
+.grid4 .sc .ib{width:48px;height:48px;border-radius:14px}
+.list{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:13px 14px;border:0;background:none;width:100%;text-align:left;color:var(--fg);border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item:hover{background:var(--soft)}
+.item .ib{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.item .ib svg{width:22px;height:22px}
+.item .mid{flex:1;min-width:0}
+.item .mid b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .mid span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .end{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.item .end b{font-family:var(--f-head);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);padding:24px;text-align:center}
+.seg{display:flex;background:var(--soft);border-radius:999px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:none;border-radius:999px;padding:8px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.page-h{padding-top:calc(env(safe-area-inset-top,0px) + 18px);padding-bottom:40px;margin-top:calc(-1 * env(safe-area-inset-top,0px));background:linear-gradient(120deg,var(--g1),var(--g2));color:#fff}
+.page-h h1{font-size:22px}
+.page-h p{margin:4px 0 0;opacity:.85;font-size:13px}
+.lift{margin-top:-24px;position:relative;z-index:2}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.p-draft{background:var(--soft);color:var(--muted)} .p-sent{background:var(--info-soft);color:var(--info)} .p-ok{background:var(--good-soft);color:var(--good)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-acc{background:var(--i-violet-bg);color:var(--i-violet)}
+.note{background:var(--i-yellow-bg);border-radius:14px;padding:12px 14px;font-size:13px}
+.note b{color:var(--warn)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:999px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:linear-gradient(120deg,var(--g1),var(--g2));border-color:transparent;color:#fff}
+.btn.sm{padding:5px 12px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.panel{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:16px;min-width:0}
+.panel h2{font-size:15px;margin-bottom:10px}
+
+/* bottom tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;height:66px}
+.tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:12px;font-weight:600;padding:8px 0}
+.tab.on{color:var(--fg)}
+.tab.on svg{color:var(--accent)}
+.fab{justify-self:center;width:62px;height:62px;border-radius:50%;border:5px solid var(--surface);background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;display:grid;place-items:center;transform:translateY(-22px);box-shadow:0 6px 18px rgba(80,60,220,.35)}
+.fab svg{width:28px;height:28px}
+
+/* forms */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.form .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);font-weight:500}
+label.f small{font-weight:400}
+.items textarea{font:inherit!important;font-size:13.5px!important}
+.f input,.f select,.f textarea,.items input,.items select,.items textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px;color:var(--fg);width:100%;min-width:0}
+.f textarea{min-height:90px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px}
+.tbl-wrap{overflow-x:auto}
+.items{width:100%;border-collapse:collapse;min-width:600px}
+.items th{font-size:11.5px;color:var(--muted);text-align:left;padding:6px 4px;font-weight:600}
+.items td{padding:4px}
+.items .x{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;padding:4px 8px}
+.totals{margin-left:auto;width:min(320px,100%);display:flex;flex-direction:column;gap:4px;font-size:13.5px}
+.totals div{display:flex;justify-content:space-between}
+.totals .g{font-weight:700;font-size:16px;border-top:1px solid var(--line);padding-top:6px;margin-top:4px}
+table.t{width:100%;border-collapse:collapse;min-width:460px;font-size:13px}
+.t td,.t th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.t th{font-size:11.5px;color:var(--muted)}
+.t .r{text-align:right}
+.t td.no{font-family:var(--f-head);font-weight:600}
+.logo-box{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.logo-prev{width:84px;height:84px;border-radius:18px;background:var(--soft);display:grid;place-items:center;overflow:hidden;border:1px dashed var(--line);font-family:var(--f-head);font-weight:700;font-size:28px;color:var(--accent)}
+.logo-prev img{width:100%;height:100%;object-fit:contain}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:44px;height:44px;border-radius:12px;border:3px solid transparent}
+.sw.on{border-color:var(--fg)}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:8px}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* modal → bottom sheet on phone */
+.ov{position:fixed;inset:0;background:var(--overlay);z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 40px max(12px,env(safe-area-inset-left,0px))}
+.modal{background:var(--surface);border-radius:20px;width:min(880px,100%);display:flex;flex-direction:column;min-width:0}
+.modal .mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.modal .mh h3{font-size:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modal .mb{padding:16px 18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.modal .mf{padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+/* paper document */
+.paper-wrap{background:var(--bg);border-radius:12px;padding:12px;overflow:hidden}
+.paper{background:var(--paper);color:var(--paper-ink);width:760px;min-height:1074px;display:flex;flex-direction:column;margin:0 auto;padding:40px 44px;font-size:12.5px;line-height:1.45;box-shadow:0 1px 3px rgba(0,0,0,.12);font-family:"Inter",system-ui,sans-serif;transform-origin:top left}
+.paper .top{display:flex;justify-content:space-between;gap:24px;border-bottom:2px solid var(--paper-accent);padding-bottom:16px}
+.paper .co{display:flex;gap:14px;align-items:flex-start}
+.paper .co img{width:64px;height:64px;object-fit:contain}
+.paper .co b{font-size:17px;font-family:var(--f-head);display:block}
+.paper .co .reg{color:var(--paper-muted);font-size:11px}
+.paper .ttl{text-align:right}
+.paper .ttl h2{font-size:22px;letter-spacing:.08em;color:var(--paper-accent)}
+.paper .meta{display:grid;grid-template-columns:auto auto;gap:2px 12px;margin-top:8px;justify-content:end;text-align:left}
+.paper .meta span:nth-child(odd){color:var(--paper-muted)}
+.paper .parties{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:18px 0}
+.paper .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--paper-muted);margin-bottom:4px;font-weight:600}
+.paper table{width:100%;border-collapse:collapse}
+.paper th{background:#EEF1F8;color:var(--paper-ink);text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:7px 8px}
+.paper td{padding:8px;border-bottom:1px solid var(--paper-line);vertical-align:top}
+.paper .r{text-align:right}
+.paper .sum{display:flex;justify-content:space-between;gap:24px;margin-top:14px}
+.paper .words{flex:1;font-style:italic;color:var(--paper-muted);align-self:flex-end}
+.paper .tt{width:280px}
+.paper .tt div{display:flex;justify-content:space-between;padding:3px 0}
+.paper .tt .g{border-top:2px solid var(--paper-ink);margin-top:4px;padding-top:6px;font-weight:700;font-size:14px}
+.paper .foot{margin-top:auto;padding-top:24px;display:grid;grid-template-columns:1fr auto;gap:24px;font-size:11.5px;color:var(--paper-muted)}
+.paper .foot p{margin:0 0 6px}
+.paper .qr{width:84px;height:84px;border:1px dashed var(--paper-muted);display:grid;place-items:center;text-align:center;font-size:9.5px;color:var(--paper-muted);padding:4px}
+.paper .sign{display:flex;gap:40px;margin-top:36px;order:1}
+.paper .foot{order:2}
+.paper .sign div{flex:1;border-top:1px solid var(--paper-ink);padding-top:4px;font-size:11px;color:var(--paper-muted)}
+.paper .rcpt{display:grid;grid-template-columns:170px 1fr;gap:10px 16px;margin:20px 0;font-size:13px}
+.paper .rcpt span:nth-child(odd){color:var(--paper-muted)}
+.paper .rcpt b{border-bottom:1px dotted var(--paper-muted);display:block;padding-bottom:2px}
+.paper .amtbox{display:inline-block;border:2px solid var(--paper-ink);padding:8px 16px;font-size:18px;font-weight:700;font-family:var(--f-head)}
+.paper .stamp{display:inline-block;border:2px solid var(--paper-accent);color:var(--paper-accent);padding:4px 12px;font-weight:700;letter-spacing:.1em;transform:rotate(-6deg);margin-left:20px}
+.paper.bb{font-family:"Montserrat","Inter",system-ui,sans-serif;font-size:12px;color:#141414;padding:64px 72px 56px;position:relative}
+.bb .serif,.bb h1,.bb th,.bb .tl,.bb .tot{font-family:"Libre Baskerville",Georgia,"Times New Roman",serif}
+.bb .hd{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding-bottom:8px;border-bottom:1px solid #cfcfcf}
+.bb .hd .l{display:flex;gap:14px;align-items:flex-start}
+.bb .hd img{width:56px;height:56px;object-fit:contain}
+.bb h1{font-size:21px;font-weight:700;letter-spacing:-.01em;margin:0 0 4px;color:#111}
+.bb .sm{font-size:10px;line-height:1.35;color:#222}
+.bb .tag{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:16px;line-height:1.1;text-align:right;max-width:240px;letter-spacing:-.01em}
+.bb .meta2{display:flex;justify-content:space-between;gap:24px;margin-top:14px;font-size:12px}
+.bb .meta2 b{font-weight:600}
+.bb .meta2 .r{text-align:right;line-height:1.7;white-space:nowrap}
+.bb .meta2>div:first-child{min-width:0}
+.bb table.it{width:100%;border-collapse:collapse;margin-top:44px}
+.bb table.it th{background:none;text-transform:none;letter-spacing:0;font-size:13px;font-weight:700;padding:0 0 8px;border-bottom:1.5px solid #333;color:#111;text-align:left}
+.bb table.it td{border:0;padding:12px 0 4px;font-size:13px;vertical-align:top}
+.bb table.it .c{text-align:center;width:70px}
+.bb table.it .r{text-align:right;width:120px}
+.bb table.it ul{margin:10px 0 0;padding-left:20px;line-height:1.75}
+.bb table.it .tx{font-size:10px;color:#666}
+.bb .grow{flex:1;min-height:40px}
+.bb .tots{position:relative;border-top:1.5px solid #333;padding-top:12px;margin-top:24px}
+.bb .tots .ln{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}
+.bb .tots .ln .tl{font-weight:700;font-size:13px}
+.bb .totrow{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid #333;margin-top:12px;padding-top:18px}
+.bb .totrow .tot{font-weight:700;letter-spacing:.12em;font-size:16px}
+.bb .totrow b{font-size:17px;font-weight:700;letter-spacing:.04em}
+.bb .words{font-size:10.5px;color:#555;font-style:italic;margin-top:6px}
+.bb .stamp2{position:absolute;right:120px;top:-62px;width:150px;height:150px;transform:rotate(-12deg);opacity:.9}
+.bb .ft{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:34px;font-size:10.5px;line-height:1.45}
+.bb .ft p{margin:0 0 12px}
+.bb .ft .web{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.bb .sign{display:flex;gap:40px;margin-top:40px;order:0}
+.bb .sign div{flex:1;border-top:1px solid #333;padding-top:4px;font-size:10px;color:#555}
+.bb .rc{display:grid;grid-template-columns:150px 1fr;gap:14px 16px;margin-top:40px;font-size:13px}
+.bb .rc .k{font-family:"Libre Baskerville",Georgia,serif;font-weight:700}
+.bb .rc .v{border-bottom:1px dotted #888;padding-bottom:3px}
+.bb .einv{font-size:9px;color:#777;border:1px dashed #aaa;padding:6px 8px;width:110px;text-align:center}
+.check{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;font-size:13px}
+.check li::before{content:"✓";color:var(--good);font-weight:700;margin-right:8px}
+.check li.no::before{content:"!";color:var(--warn)}
+.ai-card{display:flex;gap:12px;align-items:center;border:0;text-align:left;color:#fff;background:linear-gradient(120deg,var(--g1),var(--g2));border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);width:100%}
+.ai-card .ib{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none}
+.ai-card b{display:block;font-size:15px}
+.ai-card span.s{font-size:12.5px;opacity:.9}
+.chat{display:flex;flex-direction:column;gap:12px;padding-bottom:90px}
+.msg{max-width:88%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:linear-gradient(120deg,var(--g1),var(--g2));color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--surface);box-shadow:var(--shadow);border-bottom-left-radius:4px}
+.msg.ai p{margin:0 0 6px}.msg.ai p:last-child{margin:0}
+.msg.ai ul{margin:4px 0;padding-left:18px}
+.msg .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.msg .step{font-size:12px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chipq{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--fg);text-align:left}
+.chipq:hover{border-color:var(--accent)}
+.askbar{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:25;padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.askbar form{max-width:536px;margin:0 auto;display:flex;gap:8px;background:var(--surface);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.askbar input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:14.5px}
+.askbar button{border:0;border-radius:999px;padding:8px 16px;font-weight:600;color:#fff;background:linear-gradient(120deg,var(--g1),var(--g2))}
+.askbar button.ico{background:var(--soft);color:var(--accent);padding:0;width:38px;height:38px;display:grid;place-items:center;flex:none}
+.askbar button.ico svg{width:20px;height:20px}
+.askbar button.ico.rec{background:var(--bad);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.askbar form{padding-left:6px!important}
+.att{max-width:536px;margin:0 auto 6px;display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:12px;padding:6px 10px;box-shadow:var(--shadow);font-size:12.5px}
+.att img{width:40px;height:40px;object-fit:cover;border-radius:8px}
+.msg img.ph{max-width:180px;border-radius:10px;display:block;margin-bottom:6px}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13px;z-index:60;white-space:nowrap}
+
+@media (max-width:520px){
+  .form,.check{grid-template-columns:1fr}
+  .bal .v{font-size:30px}
+  .sc{font-size:12px}
+  .ov{padding:40px 0 0;align-items:flex-end}
+  .modal{border-radius:20px 20px 0 0;min-height:60vh}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app" id="app"></div>
+<nav class="tabbar" id="tabbar"></nav>
+<div id="ov" class="ov" hidden></div>
+<div id="toast" class="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<input type="file" id="f-logo" accept="image/*" class="vh" aria-label="上传 logo">
+<input type="file" id="f-cust" accept=".csv,text/csv,text/plain" class="vh" aria-label="上传客户资料">
+<input type="file" id="f-scan" accept="image/jpeg,image/png,image/webp" class="vh" aria-label="AI 读取单据">
+<input type="file" id="f-aiimg" accept="image/jpeg,image/png,image/webp" class="vh" aria-label="给 AI 的照片">
+<input type="file" id="f-restore" accept=".json,application/json" class="vh" aria-label="选择备份档">
+<input type="file" id="f-doc" accept="image/*,application/pdf" multiple class="vh" aria-label="上传公司文件">
+
+<script>
+const KEY='akaun-proto-v1';
+const TAX={
+  none:{label:'不征税 / 豁免',en:'',rate:0},
+  st8:{label:'服务税 8%',en:'Service Tax 8%',rate:.08},
+  st6:{label:'服务税 6%',en:'Service Tax 6%',rate:.06},
+  sl10:{label:'销售税 10%',en:'Sales Tax 10%',rate:.10},
+  sl5:{label:'销售税 5%',en:'Sales Tax 5%',rate:.05}
+};
+const METHODS=['银行转账 (IBG/Instant)','DuitNow','FPX','支票 Cheque','现金 Cash'];
+const METHOD_EN={'银行转账 (IBG/Instant)':'Bank Transfer','DuitNow':'DuitNow','FPX':'FPX','支票 Cheque':'Cheque','现金 Cash':'Cash'};
+
+function sample(){
+  return {
+    company:{name:'Contoh Strategi Sdn. Bhd.',ssm:'202301012345 (1501234-K)',tin:'C25012345670',sst:'W10-2401-32000456',sstOn:true,msic:'70200',
+      addr:'Level 12, Menara Contoh, Jalan Contoh 1, 50450 Kuala Lumpur',phone:'+60 3-1234 5678',email:'accounts@contoh.example',
+      bank:'Bank : Maybank\nAccount Name : Contoh Strategi Sdn. Bhd.\nAccount Number : 5140 1234 5678',tagline:'Strategy, Branding & Growth Advisory.',website:'www.contoh.example',payNote:'Looking forward to a successful partnership.\nPlease make the payment within 30 days upon receipt of the invoice.',validity:30,terms:30,defTax:'st8'},
+    customers:[
+      {id:'c1',name:'Bintang Maju Engineering Sdn. Bhd.',brn:'201901023456 (1323456-W)',tin:'C24098765430',sst:'',addr:'No. 8, Jalan Industri 3, 47100 Puchong, Selangor',email:'finance@bintangmaju.example',phone:'+60 12-345 6789'},
+      {id:'c2',name:'Teratai Hartanah Sdn. Bhd.',brn:'201501034567 (1145678-A)',tin:'C21034567890',sst:'B16-1809-31001234',addr:'22, Lebuh Pantai, 10300 George Town, Pulau Pinang',email:'ap@teratai.example',phone:'+60 4-261 0000'},
+      {id:'c3',name:'Kedai Runcit Ah Seng',brn:'JM0123456-X',tin:'',sst:'',addr:'15, Jalan Besar, 84000 Muar, Johor',email:'ahseng@mail.example',phone:'+60 16-777 8888'}
+    ],
+    quotes:[
+      {id:'q1',no:'QT-2611-0001',date:'2026-11-03',valid:'2026-12-03',cust:'c1',status:'converted',discount:0,notes:'50% deposit upon confirmation.',
+        items:[{d:'Business strategy workshop (2 days)\n- Leadership team alignment\n- 12-month growth roadmap',q:1,p:8000,t:'st8'},{d:'Market entry report – Johor & Singapore',q:1,p:4000,t:'st8'}]},
+      {id:'q2',no:'QT-2611-0002',date:'2026-11-12',valid:'2026-12-12',cust:'c2',status:'sent',discount:500,notes:'',
+        items:[{d:'Brand positioning consultation',q:3,p:2500,t:'st8'},{d:'Investor pitch deck design',q:1,p:3500,t:'st8'}]},
+      {id:'q3',no:'QT-2611-0003',date:'2026-11-20',valid:'2026-12-20',cust:'c3',status:'draft',discount:0,notes:'',
+        items:[{d:'SME digital marketing coaching (4 sessions)',q:4,p:450,t:'st8'}]}
+    ],
+    invoices:[
+      {id:'i1',no:'INV-2611-0001',date:'2026-11-05',due:'2026-12-05',cust:'c1',fromQ:'q1',discount:0,notes:'',
+        items:[{d:'Business strategy workshop (2 days)\n- Leadership team alignment\n- 12-month growth roadmap',q:1,p:8000,t:'st8'},{d:'Market entry report – Johor & Singapore',q:1,p:4000,t:'st8'}]},
+      {id:'i2',no:'INV-2610-0004',date:'2026-10-08',due:'2026-11-07',cust:'c2',fromQ:'',discount:0,notes:'',
+        items:[{d:'Quarterly advisory retainer (Oct–Dec)',q:1,p:6000,t:'st8'}]}
+    ],
+    receipts:[
+      {id:'r1',no:'OR-2611-0001',date:'2026-11-06',inv:'i1',amt:6480,method:'DuitNow',ref:'DN20261106-88231'}
+    ],
+    seq:{QT:3,INV:1,OR:1}
+  };
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.company)S=sample();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}try{driveAuto()}catch(e){}}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rm=n=>(Math.round(n*100)/100).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const r2=n=>Math.round((n+Number.EPSILON)*100)/100;
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+Number(n));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const fmtD=s=>{if(!s)return '—';const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
+const cust=id=>S.customers.find(c=>c.id===id)||{name:'(已删除客户)'};
+const uid=()=>Math.random().toString(36).slice(2,9);
+function nextNo(kind,date){S.seq[kind]=(S.seq[kind]||0)+1;const [y,m]=(date||today()).split('-');return kind+'-'+y.slice(2)+m+'-'+String(S.seq[kind]).padStart(4,'0')}
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(t._t);t._t=setTimeout(()=>t.hidden=true,2400)}
+
+function calc(doc){
+  const lines=doc.items.map(i=>({...i,amt:r2((+i.q||0)*(+i.p||0))}));
+  const sub=r2(lines.reduce((a,l)=>a+l.amt,0));
+  const disc=Math.min(+doc.discount||0,sub);
+  const f=sub?(sub-disc)/sub:0;
+  const tax={};
+  lines.forEach(l=>{const t=S.company.sstOn?l.t:'none';if(TAX[t]&&TAX[t].rate){tax[t]=(tax[t]||0)+l.amt*f*TAX[t].rate}});
+  Object.keys(tax).forEach(k=>tax[k]=r2(tax[k]));
+  const taxSum=r2(Object.values(tax).reduce((a,b)=>a+b,0));
+  return {lines,sub,disc,tax,taxSum,total:r2(sub-disc+taxSum)};
+}
+const paidOf=inv=>r2(S.receipts.filter(r=>r.inv===inv.id).reduce((a,r)=>a+r.amt,0));
+function invStatus(inv){
+  const t=calc(inv).total,p=paidOf(inv);
+  if(p>=t-0.005)return['已付清','p-ok'];
+  if(inv.due<today())return[p>0?'部分付款 · 逾期':'逾期','p-bad'];
+  if(p>0)return['部分付款','p-warn'];
+  return['未付款','p-sent'];
+}
+const QST={draft:['草稿','p-draft'],sent:['已发送','p-sent'],accepted:['客户已接受','p-acc'],converted:['已转发票','p-ok'],rejected:['已拒绝','p-bad']};
+const pill=([t,c])=>`<span class="pill ${c}">${t}</span>`;
+
+/* number to words: Malaysian receipts commonly print "Ringgit Malaysia ... Only" */
+function words(n){
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const h=x=>{let s='';if(x>=100){s+=a[Math.floor(x/100)]+' Hundred';x%=100;if(x)s+=' '}if(x>=20){s+=b[Math.floor(x/10)];if(x%10)s+='-'+a[x%10]}else if(x)s+=a[x];return s};
+  const big=x=>{if(x===0)return 'Zero';const u=[[1e9,'Billion'],[1e6,'Million'],[1e3,'Thousand']];let s='';for(const [v,w] of u){if(x>=v){s+=h(Math.floor(x/v))+' '+w+' ';x%=v}}s+=h(x);return s.trim()};
+  const rmI=Math.floor(n+1e-9),sen=Math.round((n-rmI)*100);
+  return 'Ringgit Malaysia '+big(rmI)+(sen?' and Sen '+big(sen):'')+' Only';
+}
+
+/* ---------- documents ---------- */
+function partyBlock(c){return `<b>${esc(c.name)}</b>${c.brn?`<div>Reg. No.: ${esc(c.brn)}</div>`:''}${c.tin?`<div>TIN: ${esc(c.tin)}</div>`:''}${c.sst?`<div>SST No.: ${esc(c.sst)}</div>`:''}<div>${esc(c.addr)}</div>${c.email?`<div>${esc(c.email)}</div>`:''}`}
+function coBlock(){const c=S.company;return `<div class="co">${c.logo?`<img src="${c.logo}" alt="">`:''}<div><b>${esc(c.name)}</b><div class="reg">Registration No. ${esc(c.ssm)}</div><div>${esc(c.addr)}</div><div>Tel: ${esc(c.phone)} · ${esc(c.email)}</div><div>TIN: ${esc(c.tin)}${c.sstOn&&c.sst?` · SST No.: ${esc(c.sst)}`:''}</div></div></div>`}
+const STAMP=`<svg class="stamp2" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="stTop" d="M40 100a60 60 0 0 1 120 0"/><path id="stBot" d="M38 100a62 62 0 0 0 124 0"/></defs>
+<g fill="none" stroke="#D3242B"><circle cx="100" cy="100" r="92" stroke-width="7" stroke-dasharray="3 2.2"/><circle cx="100" cy="100" r="80" stroke-width="2.5"/><circle cx="100" cy="100" r="58" stroke-width="2"/></g>
+<text font-family="Montserrat,Arial,sans-serif" font-weight="700" font-size="15" fill="#D3242B" letter-spacing="2"><textPath href="#stTop" startOffset="50%" text-anchor="middle">THANK YOU</textPath></text>
+<text font-family="Montserrat,Arial,sans-serif" font-weight="700" font-size="15" fill="#D3242B" letter-spacing="2"><textPath href="#stBot" startOffset="50%" text-anchor="middle" dominant-baseline="hanging">THANK YOU</textPath></text>
+<rect x="18" y="80" width="164" height="42" fill="#fff" stroke="#D3242B" stroke-width="4" rx="4"/><text x="100" y="114" text-anchor="middle" font-family="Montserrat,Arial Black,sans-serif" font-weight="800" font-size="40" fill="#D3242B" letter-spacing="2">PAID</text></svg>`;
+function bbHead(){const c=S.company;return `<div class="hd"><div class="l">${c.logo?`<img src="${c.logo}" alt="">`:''}<div><h1>${esc(c.name)}</h1><div class="sm">${esc(c.ssm)}</div><div class="sm">${esc(c.addr)}</div>${c.tin||c.sst?`<div class="sm">${c.tin?'TIN: '+esc(c.tin):''}${c.sstOn&&c.sst?' · SST: '+esc(c.sst):''}</div>`:''}</div></div>${c.tagline?`<div class="tag">${esc(c.tagline)}</div>`:''}</div>`}
+function bbFoot(extra){const c=S.company;return `<div class="ft"><div>
+  ${c.payNote?`<p>${esc(c.payNote).replace(/\n/g,'<br>')}</p>`:''}${extra||''}
+  ${c.bank?`<p><b style="font-weight:700">Bank Account Information</b><br>${esc(c.bank).replace(/ · /g,'<br>').replace(/\n/g,'<br>')}</p>`:''}
+  <p style="margin:0;color:#888">This is a computer-generated document.</p></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">${extra===null?'':''}<span class="web">${esc(c.website||c.email||'')}</span></div></div>`}
+function bbItems(k){return `<table class="it"><thead><tr><th>Description</th><th class="c">Qty.</th><th class="r" style="text-align:center">Price</th><th class="r" style="text-align:right">Amount RM</th></tr></thead><tbody>
+  ${k.lines.map((l,n)=>{const parts=String(l.d).split('\n').map(x=>x.replace(/^\s*[-•*]\s*/,'').trim()).filter(Boolean);const taxed=S.company.sstOn&&TAX[l.t]&&TAX[l.t].rate;
+   return `<tr><td>(${n+1}) ${esc(parts[0]||'')}${parts.length>1?`<ul>${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</td><td class="c">${l.q}</td><td class="r" style="text-align:center">${rm(l.p)}</td><td class="r">${rm(l.amt)}${taxed?`<div class="tx">${TAX[l.t].en}</div>`:''}</td></tr>`}).join('')}
+  </tbody></table>`}
+function docPaper(type,d){
+  const k=calc(d),c=cust(d.cust),isQ=type==='Q',paid=isQ?0:paidOf(d),full=!isQ&&paid>=k.total-0.005;
+  return `<div class="paper bb num">${bbHead()}
+  <div class="meta2"><div><b>Client : ${esc(c.name)}${c.brn?` (${esc(c.brn)})`:''},</b><br><b>${esc(c.addr||'')}</b>${c.tin?`<div class="sm" style="margin-top:4px">TIN: ${esc(c.tin)}${c.sst?' · SST: '+esc(c.sst):''}</div>`:''}</div>
+    <div class="r"><b>${isQ?'QUOTATION':'INVOICE'} # ${esc(d.no)}</b><br>Date : ${d.date}<br>${isQ?`Valid until : ${d.valid}`:`Due date : ${d.due}`}${!isQ&&d.fromQ?`<br><span class="sm">Ref: ${esc((S.quotes.find(q=>q.id===d.fromQ)||{}).no||'')}</span>`:''}</div></div>
+  ${bbItems(k)}
+  <div class="grow"></div>
+  <div class="tots">${full?STAMP:''}
+    <div class="ln"><span class="tl">Subtotal</span><span>${rm(k.sub)}</span></div>
+    <div class="ln"><span class="tl">Package discount</span><span>${rm(k.disc)}</span></div>
+    ${Object.entries(k.tax).map(([t,v])=>`<div class="ln"><span class="tl">${TAX[t].en}</span><span>${rm(v)}</span></div>`).join('')}
+    ${!isQ?`<div class="ln"><span class="tl">Deposit</span><span>${rm(paid)}</span></div>`:''}
+    <div class="totrow"><span class="tot">TOTAL</span><b>RM ${rm(isQ?k.total:Math.max(0,k.total-paid))}</b></div>
+    <div class="words">${words(isQ?k.total:k.total)}${!isQ&&paid?' (invoice total before deposit)':''}</div>
+  </div>
+  ${isQ?`<div class="sign"><div>Authorised by ${esc(S.company.name)}</div><div>Accepted by client (signature &amp; company stamp)</div></div>`:''}
+  ${bbFoot(isQ?`<p>This quotation is valid until ${d.valid}. Prices in Ringgit Malaysia (MYR).</p>`:'')}
+  ${!isQ?`<div style="position:absolute;right:72px;bottom:56px"></div>`:''}
+  </div>`;
+}
+function rcptPaper(r){
+  const i=S.invoices.find(x=>x.id===r.inv),c=cust(i.cust),tot=calc(i).total;
+  const upto=r2(S.receipts.filter(x=>x.inv===i.id&&x.no<=r.no).reduce((a,x)=>a+x.amt,0)),bal=Math.max(0,r2(tot-upto));
+  return `<div class="paper bb num">${bbHead()}
+  <div class="meta2"><div><b>Received from : ${esc(c.name)}${c.brn?` (${esc(c.brn)})`:''},</b><br><b>${esc(c.addr||'')}</b></div>
+    <div class="r"><b>OFFICIAL RECEIPT # ${esc(r.no)}</b><br>Date : ${r.date}</div></div>
+  <div class="rc">
+    <span class="k">The sum of</span><span class="v">${words(r.amt)}</span>
+    <span class="k">Being payment for</span><span class="v">Invoice # ${esc(i.no)} dated ${i.date} (Invoice total RM ${rm(tot)})</span>
+    <span class="k">Payment method</span><span class="v">${esc(METHOD_EN[r.method]||r.method)}${r.ref?' · Ref: '+esc(r.ref):''}</span>
+    <span class="k">Balance</span><span class="v">RM ${rm(bal)}</span>
+  </div>
+  <div class="grow"></div>
+  <div class="tots">${bal<0.005?STAMP.replace('class="stamp2"','class="stamp2" style="right:auto;left:300px"'):''}
+    <div class="totrow" style="border-top:0;margin-top:0;padding-top:6px"><span class="tot">AMOUNT RECEIVED</span><b>RM ${rm(r.amt)}</b></div>
+  </div>
+  <div class="sign"><div>Received by, for ${esc(S.company.name)}</div><div style="border:0"></div></div>
+  ${bbFoot('<p>Cheque payments are subject to clearance.</p>')}
+  </div>`;
+}
+function einvCheck(i){
+  const c=S.company,b=cust(i.cust);
+  const items=[[!!c.tin,'卖方 TIN'],[!!c.ssm,'卖方 SSM 注册号'],[!!c.msic,'卖方 MSIC 代码'],[!c.sstOn||!!c.sst,'卖方 SST 号'],[!!b.tin,'买方 TIN'],[!!b.brn,'买方注册号 / 身份证号'],[!!b.addr,'买方地址'],[!!b.phone,'买方联络电话']];
+  return `<div class="panel" style="padding:14px"><h2 style="margin-bottom:8px">e-Invoice 资料检查 <span class="pill p-draft" style="margin-left:6px">未提交 MyInvois</span></h2>
+  <ul class="check">${items.map(([ok,t])=>`<li class="${ok?'':'no'}">${t}${ok?'':' · 缺少'}</li>`).join('')}</ul>
+  <p style="margin:10px 0 0;color:var(--muted);font-size:12.5px">原型只检查字段是否填好。正式版本需要接 LHDN MyInvois API 提交、取得 UUID 和 QR 码，并按最新指引核对字段要求。</p></div>`;
+}
+
+/* ---------- modals ---------- */
+function openModal(title,body,foot){
+  const o=$('#ov');o.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="mh"><h3>${title}</h3><button class="btn sm" data-act="close">关闭</button></div><div class="mb">${body}</div>${foot?`<div class="mf">${foot}</div>`:''}</div>`;
+  o.hidden=false;document.body.style.overflow='hidden';o.scrollTop=0;requestAnimationFrame(fitPaper);
+}
+function closeModal(){$('#ov').hidden=true;$('#ov').innerHTML='';document.body.style.overflow=''}
+
+function viewQ(id){
+  const q=S.quotes.find(x=>x.id===id);
+  const f=[];
+  if(q.status==='draft')f.push(`<button class="btn" data-act="qstat" data-id="${id}" data-s="sent">标记为已发送</button>`);
+  if(q.status==='sent')f.push(`<button class="btn" data-act="qstat" data-id="${id}" data-s="rejected">客户拒绝</button>`,`<button class="btn" data-act="qstat" data-id="${id}" data-s="accepted">客户已接受</button>`);
+  if(q.status!=='converted'&&q.status!=='rejected')f.push(`<button class="btn" data-act="editQ" data-id="${id}">编辑</button>`,`<button class="btn pri" data-act="toInv" data-id="${id}">转为发票 →</button>`);
+  if(q.status==='converted'){const inv=S.invoices.find(i=>i.fromQ===id);if(inv)f.push(`<button class="btn pri" data-act="viewI" data-id="${inv.id}">查看发票 ${inv.no}</button>`)}
+  openModal(`报价单 ${q.no} ${pill(QST[q.status])}`,`<div class="paper-wrap">${docPaper('Q',q)}</div>`,shareBtns('Q',id)+f.join(''));
+}
+function viewI(id){
+  const i=S.invoices.find(x=>x.id===id),bal=calc(i).total-paidOf(i);
+  const rs=S.receipts.filter(r=>r.inv===id);
+  const hist=rs.length?`<div class="panel" style="padding:14px"><h2 style="margin-bottom:6px">收款记录</h2><div class="tbl-wrap"><table class="t" style="min-width:480px"><tbody>${rs.map(r=>`<tr><td class="no">${r.no}</td><td class="num">${fmtD(r.date)}</td><td>${esc(r.method)}</td><td class="r num">RM ${rm(r.amt)}</td><td class="r"><button class="btn sm" data-act="viewR" data-id="${r.id}">查看收据</button></td></tr>`).join('')}</tbody></table></div></div>`:'';
+  openModal(`发票 ${i.no} ${pill(invStatus(i))}`,`<div class="paper-wrap">${docPaper('I',i)}</div>${hist}${einvCheck(i)}`,
+    shareBtns('I',id)+(bal>0.005?`<button class="btn pri" data-act="pay" data-id="${id}">记录收款（余额 RM ${rm(bal)}）</button>`:''));
+}
+function viewR(id){
+  const r=S.receipts.find(x=>x.id===id);
+  openModal(`正式收据 ${r.no}`,`<div class="paper-wrap">${rcptPaper(r)}</div>`,shareBtns('R',id)+`<button class="btn" data-act="viewI" data-id="${r.inv}">查看对应发票</button>`);
+}
+function payForm(id){
+  const i=S.invoices.find(x=>x.id===id),bal=r2(calc(i).total-paidOf(i));
+  openModal(`记录收款 · ${i.no}`,`
+    <p style="margin:0;color:var(--muted)">${esc(cust(i.cust).name)} · 发票总额 RM ${rm(calc(i).total)} · 尚欠 <b style="color:var(--fg)">RM ${rm(bal)}</b></p>
+    <form id="payF" class="form">
+      <label class="f">收款金额 (RM)<input id="p-amt" type="number" step="0.01" min="0.01" max="${bal}" value="${bal.toFixed(2)}" required><small>可以少于余额，代表分期付款</small></label>
+      <label class="f">收款日期<input id="p-date" type="date" value="${today()}" required></label>
+      <label class="f">付款方式<select id="p-m">${METHODS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+      <label class="f">参考号 <small>转账编号 / 支票号</small><input id="p-ref" placeholder="例如 DN20261122-12345"></label>
+      <div id="p-err" class="full" style="color:var(--bad)" hidden></div>
+    </form>`,
+    `<button class="btn" data-act="close">取消</button><button class="btn pri" form="payF" type="submit">确认收款并开收据</button>`);
+  $('#payF').onsubmit=e=>{e.preventDefault();
+    const amt=r2(+$('#p-amt').value);
+    if(!(amt>0)||amt>bal+0.005){const er=$('#p-err');er.textContent=`金额要介于 RM 0.01 和 RM ${rm(bal)} 之间。`;er.hidden=false;return}
+    const date=$('#p-date').value;
+    const r={id:uid(),no:nextNo('OR',date),date,inv:id,amt,method:$('#p-m').value,ref:$('#p-ref').value.trim()};
+    S.receipts.push(r);save();render();toast(`已开出收据 ${r.no}`);viewR(r.id)};
+}
+function toInv(qid){
+  const q=S.quotes.find(x=>x.id===qid);
+  if(q.status==='converted'){const inv=S.invoices.find(i=>i.fromQ===qid);if(inv)return viewI(inv.id)}
+  const date=today();
+  const inv={id:uid(),no:nextNo('INV',date),date,due:addDays(date,S.company.terms),cust:q.cust,fromQ:q.id,discount:q.discount,notes:q.notes,items:q.items.map(i=>({...i}))};
+  S.invoices.push(inv);q.status='converted';save();render();toast(`已由 ${q.no} 开出发票 ${inv.no}`);viewI(inv.id);
+}
+
+/* editor for quotation / invoice */
+let draft=null;
+function editor(kind,existing){
+  const date=today();
+  draft=existing?JSON.parse(JSON.stringify(existing)):{id:uid(),no:'',date,cust:S.customers[0]?.id,discount:0,notes:'',items:[{d:'',q:1,p:0,t:S.company.sstOn?S.company.defTax:'none'}],
+    ...(kind==='Q'?{valid:addDays(date,S.company.validity),status:'draft'}:{due:addDays(date,S.company.terms),fromQ:''})};
+  draft._kind=kind;draft._new=!existing;
+  const lab=kind==='Q'?'报价单':'发票';
+  openModal(existing?`编辑${lab} ${existing.no}`:`新${lab}`,`
+    <form id="edF" class="form">
+      <label class="f full">客户<select id="e-cust">${S.customers.map(c=>`<option value="${c.id}" ${c.id===draft.cust?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
+      <label class="f">日期<input id="e-date" type="date" value="${draft.date}"></label>
+      ${kind==='Q'?`<label class="f">有效至<input id="e-end" type="date" value="${draft.valid}"></label>`:`<label class="f">到期日<input id="e-end" type="date" value="${draft.due}"></label>`}
+      <div class="full tbl-wrap"><table class="items"><thead><tr><th>项目 / 服务描述</th><th style="width:70px">数量</th><th style="width:120px">单价 (RM)</th><th style="width:140px">税项</th><th style="width:110px;text-align:right">金额</th><th style="width:32px"></th></tr></thead><tbody id="e-items"></tbody></table>
+      <button type="button" class="btn ghost sm" data-act="addLine" style="margin-top:6px">+ 加一项</button></div>
+      <label class="f">折扣 (RM)<input id="e-disc" type="number" step="0.01" min="0" value="${draft.discount}"></label>
+      <label class="f">备注<input id="e-notes" value="${esc(draft.notes)}" placeholder="例如：确认后先付 50% 订金"></label>
+      <div class="full totals num" id="e-tot"></div>
+      ${!S.company.sstOn?'<div class="full note">公司设置里 SST 已关闭，这张单据不会收 SST。</div>':''}
+      <div id="e-err" class="full" style="color:var(--bad)" hidden></div>
+    </form>`,
+    `<button class="btn" data-act="close">取消</button><button class="btn pri" form="edF" type="submit">${existing?'保存':'创建'+lab}</button>`);
+  drawLines();
+  $('#edF').addEventListener('input',e=>{const t=e.target;
+    if(t.dataset.f){const i=+t.dataset.i;draft.items[i][t.dataset.f]=t.dataset.f==='d'||t.dataset.f==='t'?t.value:+t.value;updTot()}
+    if(t.id==='e-disc'){draft.discount=+t.value;updTot()}
+    if(t.id==='e-date'){draft.date=t.value;$('#e-end').value=addDays(t.value,kind==='Q'?S.company.validity:S.company.terms)}
+  });
+  $('#edF').onsubmit=e=>{e.preventDefault();
+    draft.cust=$('#e-cust').value;draft.date=$('#e-date').value;draft.notes=$('#e-notes').value.trim();
+    if(kind==='Q')draft.valid=$('#e-end').value;else draft.due=$('#e-end').value;
+    draft.items=draft.items.filter(i=>i.d.trim()&&i.q>0);
+    if(!draft.items.length){const er=$('#e-err');er.textContent='至少要有一项填了描述和数量的项目。';er.hidden=false;if(!draft.items.length)draft.items=[{d:'',q:1,p:0,t:S.company.defTax}];drawLines();return}
+    const isNew=draft._new;delete draft._kind;delete draft._new;
+    const arr=kind==='Q'?S.quotes:S.invoices;
+    if(isNew){draft.no=nextNo(kind==='Q'?'QT':'INV',draft.date);arr.push(draft)}else{arr[arr.findIndex(x=>x.id===draft.id)]=draft}
+    save();go('docs',kind==='Q'?'quotes':'invoices');toast(isNew?`已创建 ${draft.no}`:'已保存');
+    (kind==='Q'?viewQ:viewI)(draft.id);
+  };
+}
+function drawLines(){
+  $('#e-items').innerHTML=draft.items.map((it,i)=>`<tr>
+    <td><textarea data-i="${i}" data-f="d" rows="2" placeholder="例如：Marketing Services&#10;- Published on Social Media" aria-label="描述" style="resize:vertical;min-height:40px">${esc(it.d)}</textarea></td>
+    <td><input data-i="${i}" data-f="q" type="number" min="0" step="1" value="${it.q}" aria-label="数量"></td>
+    <td><input data-i="${i}" data-f="p" type="number" min="0" step="0.01" value="${it.p}" aria-label="单价"></td>
+    <td><select data-i="${i}" data-f="t" aria-label="税项" ${S.company.sstOn?'':'disabled'}>${Object.entries(TAX).map(([k,v])=>`<option value="${k}" ${k===it.t?'selected':''}>${v.label}</option>`).join('')}</select></td>
+    <td class="num" style="text-align:right" id="amt-${i}"></td>
+    <td><button type="button" class="x" data-act="rmLine" data-i="${i}" aria-label="删除这一项" ${draft.items.length<2?'disabled':''}>×</button></td></tr>`).join('');
+  updTot();
+}
+function updTot(){
+  const k=calc(draft);
+  k.lines.forEach((l,i)=>{const e=$('#amt-'+i);if(e)e.textContent=rm(l.amt)});
+  $('#e-tot').innerHTML=`<div><span>小计 Subtotal</span><span>RM ${rm(k.sub)}</span></div>${k.disc?`<div><span>折扣</span><span>− RM ${rm(k.disc)}</span></div>`:''}${Object.entries(k.tax).map(([t,v])=>`<div><span>${TAX[t].label}</span><span>RM ${rm(v)}</span></div>`).join('')}<div class="g"><span>总额</span><span>RM ${rm(k.total)}</span></div>`;
+}
+function custForm(id,kind){
+  kind=kind||(id&&S.suppliers.some(x=>x.id===id)?'S':'C');
+  const arr=kind==='S'?S.suppliers:S.customers,lab=kind==='S'?'供应商':'客户';
+  const c=id?arr.find(x=>x.id===id):{id:uid(),name:'',brn:'',tin:'',sst:'',addr:'',email:'',phone:'',cat:'other'};
+  openModal(id?'编辑'+lab:'新'+lab,`<form id="cF" class="form">
+    <label class="f full">${lab}名称<input id="c-name" value="${esc(c.name)}" required></label>
+    <label class="f">SSM 注册号 / 身份证号<input id="c-brn" value="${esc(c.brn)}"></label>
+    <label class="f">TIN <small>e-Invoice 需要</small><input id="c-tin" value="${esc(c.tin)}"></label>
+    <label class="f">SST 号 <small>如有</small><input id="c-sst" value="${esc(c.sst)}"></label>
+    <label class="f">电话 <small>WhatsApp 用</small><input id="c-phone" value="${esc(c.phone)}"></label>
+    ${kind==='S'?`<label class="f full">默认支出类别<select id="c-cat">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===c.cat?'selected':''}>${v[0]}</option>`).join('')}</select></label>`:''}
+    <label class="f full">地址<input id="c-addr" value="${esc(c.addr)}"></label>
+    <label class="f full">电邮<input id="c-email" type="email" value="${esc(c.email)}"></label></form>`,
+    `<button class="btn" data-act="close">取消</button><button class="btn pri" form="cF" type="submit">保存${lab}</button>`);
+  $('#cF').onsubmit=e=>{e.preventDefault();const v=k=>$('#c-'+k).value.trim();
+    Object.assign(c,{name:v('name'),brn:v('brn'),tin:v('tin'),sst:v('sst'),phone:v('phone'),addr:v('addr'),email:v('email')});
+    if(kind==='S')c.cat=v('cat');
+    if(!id)arr.push(c);save();closeModal();go('contacts',kind==='S'?'suppliers':'customers');toast(lab+'已保存')};
+}
+
+
+/* ---------- extra state (logo, theme, files) ---------- */
+S.files=S.files||[];
+if(S.company.tagline==null){S.company.tagline='Strategy, Branding & Growth Advisory.';S.company.website='www.contoh.example';S.company.payNote='Looking forward to a successful partnership.\nPlease make the payment within '+S.company.terms+' days upon receipt of the invoice.';S.company.bank=S.company.bank.replace(/^Maybank · (.*) · (.*)$/,'Bank : Maybank\nAccount Name : $1\nAccount Number : $2')}
+if(S.company.theme==null)S.company.theme=0;
+if(S.hide==null)S.hide=false;
+const THEMES=[['#2B4FE0','#7A3FE4','蓝紫'],['#0E7C66','#2BB0A0','青绿'],['#D9480F','#F2A100','橙金'],['#1F2937','#55617A','墨灰'],['#B0216B','#E8578A','玫红']];
+function applyTheme(){const t=THEMES[S.company.theme]||THEMES[0];const r=document.documentElement.style;r.setProperty('--g1',t[0]);r.setProperty('--g2',t[1]);r.setProperty('--paper-accent',t[0])}
+
+const IC={
+  quote:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  inv:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  pay:'<circle cx="9" cy="9" r="6"/><path d="M15.5 8.6A6 6 0 1 1 9.4 15"/><path d="M9 6.5v5M7.5 8h2.5"/>',
+  rcpt:'<path d="M6 3h12v18H6z"/><path d="m9 12 2 2 4-4"/>',
+  cust:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/>',
+  upload:'<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
+  co:'<path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01"/>',
+  brush:'<path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8 9.2 12z"/><path d="M8 13c-2 0-4 1.5-4 4 0 1.5-1 2.5-2 3 4 1 8 0 8-4z"/>',
+  shield:'<path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  home:'<path d="M3 11 12 4l9 7v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 16c1.7 1.3 4.3 1.3 6 0"/>',
+  docs:'<path d="M8 3h9a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8"/><path d="M5 6v12M12 8h4M12 12h4M12 16h2"/>',
+  me:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2 3.2-3 5.5-3s4.2 1 5.5 3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff:'<path d="M3 3l18 18M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.6 5-1.4"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  exp:'<path d="M4 7h16v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M12 11v5M9.5 13.5 12 16l2.5-2.5"/>',
+  cam:'<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  ai:'<path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.3L7 17l-1.3.7L5 19l-.7-1.3L3 17l1.3-.7z"/>',
+  truck:'<path d="M2 6h11v10H2zM13 9h4l4 4v3h-8"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>'
+};
+const ic=(n,cls='ic')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const logoHTML=()=>S.company.logo?`<img src="${S.company.logo}" alt="">`:esc((S.company.name||'?').trim()[0]||'?');
+const money=v=>S.hide?'RM ••••':'RM '+rm(v);
+
+let page='home',docTab='quotes',conTab='customers',repMode='month',repMonth=today().slice(0,7);
+function go(p,tab){page=p;if(tab){if(p==='docs')docTab=tab;if(p==='contacts')conTab=tab}render();window.scrollTo(0,0)}
+function render(){
+  applyTheme();
+  ({home,docs,contacts,report,me,ai})[page]();
+  const ab=document.getElementById('askbar');if(ab)ab.hidden=page!=='ai';
+  const t=[['home','首页','home'],['docs','单据','docs'],null,['report','报表','chart'],['me','我的','me']];
+  $('#tabbar').innerHTML=`<div class="in">${t.map(x=>x?`<button class="tab ${page===x[0]?'on':''}" data-go="${x[0]}">${ic(x[2])}${x[1]}</button>`:`<button class="fab" data-act="fab" aria-label="新增">${ic('plus')}</button>`).join('')}</div>`;
+}
+const heroTop=()=>`<div class="topbar"><button class="chip" data-go="me"><span class="lg">${logoHTML()}</span><span>${esc(S.company.name)}</span></button>
+  <button class="search" data-act="search">${ic('search')}<span>搜索客户、单据编号…</span></button></div>`;
+const pageHead=(t,p)=>`<header class="page-h"><div class="hin">${heroTop()}<h1 style="margin-top:18px">${t}</h1><p>${p}</p></div></header>`;
+
+function home(){
+  const m=today().slice(0,7);
+  const out=S.invoices.reduce((a,i)=>a+Math.max(0,calc(i).total-paidOf(i)),0);
+  const got=S.receipts.filter(r=>r.date.slice(0,7)===m).reduce((a,r)=>a+r.amt,0);
+  const pend=S.quotes.filter(q=>q.status==='sent'||q.status==='draft'||q.status==='accepted');
+  const over=S.invoices.filter(i=>invStatus(i)[1]==='p-bad');
+  const openInv=S.invoices.filter(i=>invStatus(i)[1]!=='p-ok');
+  $('#app').innerHTML=`
+  <header class="hero"><div class="hin">${heroTop()}
+    <div class="bal"><div><div class="l">应收未收款 <button class="eye" data-act="hide" aria-label="隐藏金额">${ic(S.hide?'eyeoff':'eye')}</button></div><div class="v num">${money(out)}</div><div class="s">${openInv.length} 张发票待收</div></div>
+    <button class="outline" data-act="newQuote">+ 新报价单</button></div></div></header>
+  <div class="body">
+    <div class="shortcuts">
+      <button class="sc" data-go="docs" data-tab="quotes"><span class="ib c-orange">${ic('quote')}</span>报价单</button>
+      <button class="sc" data-go="docs" data-tab="invoices"><span class="ib c-violet">${ic('inv')}</span>发票</button>
+      <button class="sc" data-act="quickPay"><span class="ib c-green">${ic('pay')}</span>收款</button>
+      <button class="sc" data-act="newExp"><span class="ib c-pink">${ic('exp')}</span>记支出</button>
+    </div>
+    <button class="ai-card" data-go="ai"><span class="ib">${ic('ai')}</span><span style="flex:1;min-width:0"><b>AI 助理</b><span class="s">问账目、开报价单、记支出、写催款信息，跟它说就行</span></span>${ic('chev')}</button>
+    <div class="duo">
+      <div class="card"><span class="ib c-green">${ic('pay')}</span><div style="min-width:0"><div class="s">本月已收</div><div class="v num">${money(got)}</div></div></div>
+      <button class="card" data-go="docs" data-tab="expenses"><span class="ib c-pink">${ic('exp')}</span><div style="min-width:0"><div class="s">本月支出</div><div class="v num">${money(expTotal(m))}</div></div></button>
+    </div>
+    ${over.length?`<button class="card" style="background:var(--bad-soft)" data-act="viewI" data-id="${over[0].id}"><span class="ib" style="background:var(--surface);color:var(--bad)">${ic('inv')}</span><div style="flex:1;min-width:0"><b>${over.length} 张发票已逾期</b><div class="s">${esc(cust(over[0].cust).name)} · ${over[0].no} · 到期 ${fmtD(over[0].due)}</div></div>${ic('chev')}</button>`:''}
+    <div class="sec"><h2>常用功能</h2></div>
+    <div class="grid4">
+      <button class="sc" data-go="docs" data-tab="receipts"><span class="ib c-blue">${ic('rcpt')}</span>收据</button>
+      <button class="sc" data-go="contacts" data-tab="customers"><span class="ib c-blue">${ic('cust')}</span>客户</button>
+      <button class="sc" data-go="contacts" data-tab="suppliers"><span class="ib c-orange">${ic('truck')}</span>供应商</button>
+      <button class="sc" data-go="report"><span class="ib c-violet">${ic('chart')}</span>预算报表</button>
+      <button class="sc" data-act="importCust"><span class="ib c-green">${ic('upload')}</span>导入资料</button>
+      <button class="sc" data-act="editCo"><span class="ib c-violet">${ic('co')}</span>公司资料</button>
+      <button class="sc" data-act="brand"><span class="ib c-pink">${ic('brush')}</span>Logo 与配色</button>
+      <button class="sc" data-act="einv"><span class="ib c-yellow">${ic('shield')}</span>e-Invoice</button>
+    </div>
+    ${(()=>{const dv=drvState(),last=Math.max(S.lastBackup?new Date(S.lastBackup).getTime():0,dv.lastAt||0);return Date.now()-last>7*864e5?`<button class="card" style="background:var(--i-yellow-bg)" data-act="backup"><span class="ib" style="background:var(--surface);color:var(--warn)">${ic('upload')}</span><div style="flex:1;min-width:0"><b>${last?'超过 7 天没备份了':'资料还没备份'}</b><div class="s">资料只存在这台设备，按这里备份到 Google Drive</div></div>${ic('chev')}</button>`:''})()}
+    ${budgetTeaser(m)}
+    <div class="sec"><h2>需要跟进</h2><button class="link" data-go="docs" data-tab="invoices">全部</button></div>
+    <div class="list">${followUps()}</div>
+    <div class="note"><b>e-Invoice：</b>已预留买卖双方 TIN、SSM 注册号、SST 号、MSIC 和 QR 码位置，但这个原型<b>还没连接 LHDN MyInvois，不代表已合规</b>。</div>
+  </div>`;
+}
+function invItem(i){const t=calc(i).total,p=paidOf(i);return `<button class="item" data-act="viewI" data-id="${i.id}"><span class="ib c-violet">${ic('inv')}</span><span class="mid"><b>${esc(cust(i.cust).name)}</b><span>${i.no} · 到期 ${fmtD(i.due)}</span></span><span class="end"><b>${money(t-p>0.005?t-p:t)}</b>${pill(invStatus(i))}</span></button>`}
+function qItem(q){return `<button class="item" data-act="viewQ" data-id="${q.id}"><span class="ib c-orange">${ic('quote')}</span><span class="mid"><b>${esc(cust(q.cust).name)}</b><span>${q.no} · 有效至 ${fmtD(q.valid)}</span></span><span class="end"><b>${money(calc(q).total)}</b>${pill(QST[q.status])}</span></button>`}
+function rItem(r){const i=S.invoices.find(x=>x.id===r.inv)||{};return `<button class="item" data-act="viewR" data-id="${r.id}"><span class="ib c-blue">${ic('rcpt')}</span><span class="mid"><b>${esc(cust(i.cust).name)}</b><span>${r.no} · ${fmtD(r.date)} · ${esc(r.method)}</span></span><span class="end"><b>${money(r.amt)}</b><span class="pill p-ok">已收</span></span></button>`}
+function followUps(){
+  const a=[...S.invoices.filter(i=>invStatus(i)[1]!=='p-ok').map(invItem),...S.quotes.filter(q=>q.status==='sent'||q.status==='accepted').map(qItem)];
+  return a.length?a.join(''):'<div class="empty">全部搞定，没有要跟进的。</div>';
+}
+function docs(){
+  const T={quotes:['报价单',[...S.quotes].sort((a,b)=>b.no.localeCompare(a.no)).map(qItem)],invoices:['发票',[...S.invoices].sort((a,b)=>b.date.localeCompare(a.date)).map(invItem)],receipts:['收据',[...S.receipts].sort((a,b)=>b.no.localeCompare(a.no)).map(rItem)],expenses:['支出',[...S.expenses].sort((a,b)=>b.date.localeCompare(a.date)).map(eItem)]};
+  $('#app').innerHTML=`${pageHead('单据','报价单 → 发票 → 收款 → 收据，以及每一笔支出')}
+  <div class="body"><div class="lift seg" style="background:var(--surface);box-shadow:var(--shadow)">${Object.entries(T).map(([k,v])=>`<button class="${docTab===k?'on':''}" data-go="docs" data-tab="${k}">${v[0]}</button>`).join('')}</div>
+  <div class="row" style="justify-content:space-between"><span style="color:var(--muted)">${T[docTab][1].length} 张${T[docTab][0]}</span>
+  ${docTab==='quotes'?'<button class="btn pri sm" data-act="newQuote">+ 新报价单</button>':docTab==='invoices'?'<button class="btn pri sm" data-act="newInv">+ 直接开发票</button>':docTab==='expenses'?'<button class="btn pri sm" data-act="newExp">+ 记支出</button>':'<span style="color:var(--muted);font-size:12.5px">在发票里“记录收款”就会自动开收据</span>'}</div>
+  <div class="list">${T[docTab][1].join('')||'<div class="empty">这里还是空的</div>'}</div></div>`;
+}
+function contacts(){
+  const isS=conTab==='suppliers',arr=isS?S.suppliers:S.customers;
+  $('#app').innerHTML=`${pageHead(isS?'供应商':'客户',isS?'记录向谁买东西，支出可以直接对上供应商':'e-Invoice 需要买方 TIN 和注册号，先在这里存好')}
+  <div class="body"><div class="lift seg" style="background:var(--surface);box-shadow:var(--shadow)"><button class="${!isS?'on':''}" data-go="contacts" data-tab="customers">客户</button><button class="${isS?'on':''}" data-go="contacts" data-tab="suppliers">供应商</button></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn sm" data-act="importCust" data-k="${isS?'S':'C'}">导入 Excel / CSV</button><button class="btn pri sm" data-act="${isS?'newSup':'newCust'}">+ 新${isS?'供应商':'客户'}</button></div>
+  <div class="list">${arr.map(c=>{const spent=isS?S.expenses.filter(e=>e.sup===c.id).reduce((a,e)=>a+e.amt,0):0;return `<button class="item" data-act="editCust" data-id="${c.id}"><span class="ib ${isS?'c-orange':'c-blue'}" style="font-family:var(--f-head);font-weight:700">${esc(c.name.trim()[0]||'?')}</span><span class="mid"><b>${esc(c.name)}</b><span>${isS?esc((CATS[c.cat]||CATS.other)[0])+' · 今年支出 '+money(spent):esc(c.brn||'无注册号')+' · '+esc(c.phone||c.email||'')}</span></span><span class="end">${isS?'':c.tin?'<span class="pill p-ok">有 TIN</span>':'<span class="pill p-warn">缺 TIN</span>'}</span></button>`}).join('')||'<div class="empty">还没有资料</div>'}</div></div>`;
+}
+function me(){
+  const c=S.company;
+  $('#app').innerHTML=`${pageHead('我的公司','资料会印在每一张报价单、发票和收据上')}
+  <div class="body">
+    <div class="panel lift"><div class="logo-box"><div class="logo-prev">${logoHTML()}</div><div style="flex:1;min-width:0"><b style="font-size:16px">${esc(c.name)}</b><div style="color:var(--muted);font-size:12.5px">SSM ${esc(c.ssm)}<br>TIN ${esc(c.tin)}${c.sstOn?' · SST '+esc(c.sst):''}</div></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn sm" data-act="brand">更换 Logo 与配色</button><button class="btn sm" data-act="editCo">编辑公司资料</button></div></div>
+    <div class="list">
+      <button class="item" data-act="files"><span class="ib c-blue">${ic('folder')}</span><span class="mid"><b>公司文件</b><span>SSM 证书、SST 注册信、银行资料等 · ${S.files.length} 份</span></span>${ic('chev')}</button>
+      <button class="item" data-act="importCust"><span class="ib c-green">${ic('upload')}</span><span class="mid"><b>导入客户 / 供应商资料</b><span>上传 CSV（Excel 可另存为 CSV）</span></span>${ic('chev')}</button>
+      <button class="item" data-act="editBudget"><span class="ib c-violet">${ic('chart')}</span><span class="mid"><b>设定每月预算</b><span>收入目标和各类支出上限</span></span>${ic('chev')}</button>
+      <button class="item" data-act="einv"><span class="ib c-yellow">${ic('shield')}</span><span class="mid"><b>e-Invoice 资料检查</b><span>看看哪些客户还缺 TIN</span></span>${ic('chev')}</button>
+      <button class="item" data-act="drive"><span class="ib c-blue" style="font-size:20px">☁</span><span class="mid"><b>Google Drive 备份</b><span>把账目存到你自己的 Drive，换设备也找得回</span></span></button>
+      <button class="item" data-act="backup"><span class="ib c-green">${ic('upload')}</span><span class="mid"><b>备份档 / 还原 / 导出给会计师</b><span>上次备份档：${S.lastBackup?fmtD(S.lastBackup):'还没备份过'} · CSV 给 Excel 用</span></span>${ic('chev')}</button>
+      <button class="item" data-act="reset"><span class="ib c-pink">${ic('reset')}</span><span class="mid"><b id="resetLbl">重置示例数据</b><span>清除你的修改，恢复示例</span></span></button>
+    </div>
+    <div class="note"><b>注意：</b>这是原型，所有资料只存在这台设备的浏览器里，换设备或清除浏览器数据就会不见。正式版需要云端数据库和登入。</div>
+  </div>`;
+}
+
+/* ---------- company info, logo & theme ---------- */
+function editCo(){
+  const c=S.company;
+  openModal('公司资料',`<form id="setForm" class="form">
+    <label class="f full">公司名称<input id="s-name" value="${esc(c.name)}"></label>
+    <label class="f">SSM 注册号 <small>新格式 12 位 + 旧号</small><input id="s-ssm" value="${esc(c.ssm)}"></label>
+    <label class="f">税务编号 TIN<input id="s-tin" value="${esc(c.tin)}"></label>
+    <label class="f">SST 注册号<input id="s-sst" value="${esc(c.sst)}"></label>
+    <label class="f">MSIC 行业代码 <small>e-Invoice 需要</small><input id="s-msic" value="${esc(c.msic)}"></label>
+    <label class="f full">地址<input id="s-addr" value="${esc(c.addr)}"></label>
+    <label class="f">电话<input id="s-phone" value="${esc(c.phone)}"></label>
+    <label class="f">电邮<input id="s-email" value="${esc(c.email)}"></label>
+    <label class="f full">标语 <small>印在单据右上角，例如 Content, Events &amp; Strategic Referral.</small><input id="s-tagline" value="${esc(c.tagline||'')}"></label>
+    <label class="f">网站<input id="s-web" value="${esc(c.website||'')}"></label>
+    <label class="f full">收款银行资料 <small>每行一项，印在单据底部</small><textarea id="s-bank" style="font-family:inherit;font-size:14px;min-height:72px">${esc(c.bank)}</textarea></label>
+    <label class="f full">单据底部备注<textarea id="s-paynote" style="font-family:inherit;font-size:14px;min-height:72px">${esc(c.payNote||'')}</textarea></label>
+    <label class="f">报价有效期（天）<input id="s-val" type="number" min="1" value="${c.validity}"></label>
+    <label class="f">付款期限（天）<input id="s-terms" type="number" min="0" value="${c.terms}"></label>
+    <label class="f">默认税项<select id="s-tax">${Object.entries(TAX).map(([k,v])=>`<option value="${k}" ${k===c.defTax?'selected':''}>${v.label}</option>`).join('')}</select></label>
+    <label class="chk full"><input type="checkbox" id="s-sston" ${c.sstOn?'checked':''}> 公司已注册 SST（关闭后所有单据不收 SST）</label>
+    <div class="full note"><b>税率：</b>服务税一般 8%（餐饮、电信、停车、物流等仍是 6%），销售税 5% 或 10%。以皇家关税局 (JKDM) 最新公告为准。</div>
+  </form>`,`<button class="btn" data-act="close">取消</button><button class="btn pri" form="setForm" type="submit">保存</button>`);
+  $('#setForm').onsubmit=e=>{e.preventDefault();const v=id=>$('#'+id).value.trim();
+    Object.assign(c,{name:v('s-name'),ssm:v('s-ssm'),tin:v('s-tin'),sst:v('s-sst'),msic:v('s-msic'),addr:v('s-addr'),phone:v('s-phone'),email:v('s-email'),bank:$('#s-bank').value.trim(),payNote:$('#s-paynote').value.trim(),tagline:v('s-tagline'),website:v('s-web'),validity:+v('s-val')||30,terms:+v('s-terms')||0,defTax:v('s-tax'),sstOn:$('#s-sston').checked});
+    save();closeModal();render();toast('公司资料已保存')};
+}
+function brand(){
+  openModal('Logo 与配色',`
+    <div class="drop" id="logoDrop"><div class="logo-prev">${logoHTML()}</div><div>把 logo 图片拖到这里，或</div>
+      <div class="row" style="justify-content:center"><button class="btn pri sm" data-act="pickLogo">选择图片</button>${S.company.logo?'<button class="btn sm" data-act="rmLogo">移除 logo</button>':''}</div>
+      <small>PNG / JPG / SVG，建议透明背景的方形图。会自动缩小保存。</small></div>
+    <div><b>界面主色</b><div class="swatches" style="margin-top:8px">${THEMES.map((t,i)=>`<button class="sw ${S.company.theme===i?'on':''}" style="background:linear-gradient(135deg,${t[0]},${t[1]})" data-act="theme" data-i="${i}" aria-label="${t[2]}" title="${t[2]}"></button>`).join('')}</div>
+    <p style="color:var(--muted);font-size:12.5px;margin:8px 0 0">主色会用在首页顶部、按钮和单据标题上。</p></div>`);
+  const d=$('#logoDrop');
+  d.ondragover=e=>{e.preventDefault();d.classList.add('over')};d.ondragleave=()=>d.classList.remove('over');
+  d.ondrop=e=>{e.preventDefault();d.classList.remove('over');const f=e.dataTransfer.files[0];if(f)loadLogo(f)};
+}
+function loadLogo(f){
+  if(!f.type.startsWith('image/'))return toast('请选择图片文件');
+  const rd=new FileReader();
+  rd.onload=()=>{const img=new Image();img.onload=()=>{
+    const max=320,s=Math.min(1,max/Math.max(img.width||max,img.height||max));
+    const cv=document.createElement('canvas');cv.width=Math.round((img.width||max)*s);cv.height=Math.round((img.height||max)*s);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    S.company.logo=cv.toDataURL('image/png');
+    if(!saveChecked())return;render();brand();toast('Logo 已更新');
+  };img.onerror=()=>toast('这张图片读不到，换一张试试');img.src=rd.result};
+  rd.readAsDataURL(f);
+}
+function saveChecked(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('浏览器空间不够，请换小一点的文件');return false}}
+
+/* ---------- customer import ---------- */
+const HDR={name:['name','customer','customer name','supplier','supplier name','vendor','供应商','供应商名称','company','company name','客户','客户名称','公司','公司名称','名称'],brn:['brn','ssm','reg no','registration no','registration no.','ssm no','注册号','ssm注册号','身份证','ic'],tin:['tin','tax id','税号','税务编号'],sst:['sst','sst no','sst no.','sst号'],addr:['address','addr','地址'],email:['email','e-mail','电邮','邮箱'],phone:['phone','tel','mobile','contact','电话','手机']};
+function parseCSV(txt){
+  const rows=[];let row=[],cur='',q=false;
+  txt=txt.replace(/^﻿/,'');
+  for(let i=0;i<txt.length;i++){const ch=txt[i];
+    if(q){if(ch==='"'){if(txt[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===','||ch==='\t'){row.push(cur);cur=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&txt[i+1]==='\n')i++;row.push(cur);rows.push(row);row=[];cur=''}
+    else cur+=ch}
+  if(cur||row.length){row.push(cur);rows.push(row)}
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+function mapRows(rows){
+  if(rows.length<2)return [];
+  const h=rows[0].map(x=>x.trim().toLowerCase());
+  const idx={};Object.entries(HDR).forEach(([k,al])=>{const i=h.findIndex(x=>al.includes(x));if(i>=0)idx[k]=i});
+  if(idx.name==null)return null;
+  return rows.slice(1).map(r=>{const o={id:uid()};Object.keys(HDR).forEach(k=>o[k]=idx[k]!=null?(r[idx[k]]||'').trim():'');return o}).filter(o=>o.name);
+}
+const TEMPLATE='name,brn,tin,sst,address,email,phone\n"Syarikat Contoh Sdn. Bhd.","202001012345 (1370000-X)",C2300000000,,"No. 1, Jalan Contoh, 50000 Kuala Lumpur",ap@contoh.example,+60 3-0000 0000';
+let pending=[];
+let impKind='C';
+function importCust(k){
+  impKind=k||'C';
+  openModal(impKind==='S'?'导入供应商资料':'导入客户资料',`
+    <div class="drop" id="custDrop">${ic('upload')}<div>把 CSV 文件拖到这里，或</div><button class="btn pri sm" data-act="pickCust">选择文件</button>
+    <small>Excel 用户：文件 → 另存为 → CSV。第一行要是栏位名称，中英文都可以（客户名称、注册号、TIN、地址、电邮、电话）。</small></div>
+    <label class="f">或者直接贴上内容<textarea id="custPaste" placeholder="${esc(TEMPLATE)}"></textarea></label>
+    <div class="row"><button class="btn sm" data-act="parsePaste">读取贴上的内容</button><button class="btn ghost sm" data-act="copyTpl">复制范本格式</button></div>
+    <div id="custPrev"></div>`,
+    `<button class="btn" data-act="close">取消</button><button class="btn pri" id="doImport" data-act="doImport" disabled>导入</button>`);
+  if(!k)$('#custPrev').insertAdjacentHTML('beforebegin','<div class="seg" id="impSeg"><button type="button" class="on" data-act="impK" data-k="C">客户</button><button type="button" data-act="impK" data-k="S">供应商</button></div>');
+  pending=[];
+  const d=$('#custDrop');
+  d.ondragover=e=>{e.preventDefault();d.classList.add('over')};d.ondragleave=()=>d.classList.remove('over');
+  d.ondrop=e=>{e.preventDefault();d.classList.remove('over');const f=e.dataTransfer.files[0];if(f)readCustFile(f)};
+}
+function readCustFile(f){const rd=new FileReader();rd.onload=()=>previewCust(rd.result,f.name);rd.readAsText(f)}
+let lastImp=['',''];
+function previewCust(txt,src){lastImp=[txt,src];
+  const out=mapRows(parseCSV(txt));const box=$('#custPrev');
+  if(out===null){box.innerHTML='<div class="note"><b>找不到“客户名称”栏。</b>第一行请放栏位名称，例如 name 或 客户名称。</div>';pending=[];$('#doImport').disabled=true;return}
+  pending=out;
+  const dup=out.filter(o=>(impKind==='S'?S.suppliers:S.customers).some(c=>c.name.toLowerCase()===o.name.toLowerCase())).length;
+  box.innerHTML=`<p style="margin:0 0 6px"><b>${out.length}</b> 位${impKind==='S'?'供应商':'客户'}${src?'（来自 '+esc(src)+'）':''}${dup?`，其中 ${dup} 位已存在，会更新资料`:''}：</p><div class="tbl-wrap"><table class="t"><thead><tr><th>名称</th><th>注册号</th><th>TIN</th><th>电话</th></tr></thead><tbody>${out.slice(0,8).map(o=>`<tr><td>${esc(o.name)}</td><td>${esc(o.brn)||'—'}</td><td>${o.tin?esc(o.tin):'<span class="pill p-warn">缺</span>'}</td><td>${esc(o.phone)||'—'}</td></tr>`).join('')}</tbody></table></div>${out.length>8?`<small style="color:var(--muted)">…还有 ${out.length-8} 位</small>`:''}`;
+  $('#doImport').disabled=!out.length;$('#doImport').textContent=`导入 ${out.length} 位${impKind==='S'?'供应商':'客户'}`;
+}
+function doImport(){
+  let add=0,upd=0;
+  const arr=impKind==='S'?S.suppliers:S.customers;
+  pending.forEach(o=>{if(impKind==='S')o.cat=o.cat||'other';const ex=arr.find(c=>c.name.toLowerCase()===o.name.toLowerCase());
+    if(ex){Object.keys(HDR).forEach(k=>{if(o[k])ex[k]=o[k]});upd++}else{arr.push(o);add++}});
+  if(!saveChecked())return;closeModal();go('contacts',impKind==='S'?'suppliers':'customers');toast(`新增 ${add} 位，更新 ${upd} 位${impKind==='S'?'供应商':'客户'}`);
+}
+
+/* ---------- company files ---------- */
+function files(){
+  openModal('公司文件',`
+    <div class="drop" id="docDrop">${ic('folder')}<div>上传 SSM 证书、SST 注册信、银行资料等</div><button class="btn pri sm" data-act="pickDoc">选择文件</button><small>图片或 PDF，每份 1.5MB 以内（原型限制）</small></div>
+    <div class="list" style="box-shadow:none;border:1px solid var(--line)">${S.files.map(f=>`<div class="item"><span class="ib c-blue">${ic(f.type.startsWith('image/')?'brush':'quote')}</span><span class="mid"><b>${esc(f.name)}</b><span>${(f.size/1024).toFixed(0)} KB · ${fmtD(f.date)}</span></span><span class="end row">${f.type.startsWith('image/')?`<button class="btn sm" data-act="seeDoc" data-id="${f.id}">查看</button>`:''}<button class="btn sm" data-act="rmDoc" data-id="${f.id}">删除</button></span></div>`).join('')||'<div class="empty">还没有上传文件</div>'}</div>
+    <div id="docView"></div>`);
+  const d=$('#docDrop');
+  d.ondragover=e=>{e.preventDefault();d.classList.add('over')};d.ondragleave=()=>d.classList.remove('over');
+  d.ondrop=e=>{e.preventDefault();d.classList.remove('over');addDocs(e.dataTransfer.files)};
+}
+function addDocs(list){
+  const fs=[...list];let skip=0,n=0;
+  fs.forEach(f=>{if(f.size>1.5*1024*1024){skip++;return}
+    const rd=new FileReader();rd.onload=()=>{S.files.push({id:uid(),name:f.name,type:f.type||'',size:f.size,date:today(),data:rd.result});
+      if(!saveChecked())S.files.pop();if(++n===fs.length-skip){files();toast(`已上传 ${n} 份文件`)}};rd.readAsDataURL(f)});
+  if(skip)toast(`${skip} 份文件超过 1.5MB，已跳过`);
+}
+
+/* ---------- search & e-invoice overview ---------- */
+function search(){
+  openModal('搜索',`<label class="f"><span class="vh">关键字</span><input id="q" placeholder="客户名称、QT- / INV- / OR- 编号" autofocus></label><div class="list" style="box-shadow:none;border:1px solid var(--line)" id="qres"></div>`);
+  const run=()=>{const k=$('#q').value.trim().toLowerCase();
+    const hit=s=>String(s||'').toLowerCase().includes(k);
+    const r=k?[...S.quotes.filter(q=>hit(q.no)||hit(cust(q.cust).name)).map(qItem),...S.invoices.filter(i=>hit(i.no)||hit(cust(i.cust).name)).map(invItem),...S.receipts.filter(x=>hit(x.no)||hit(cust((S.invoices.find(i=>i.id===x.inv)||{}).cust).name)).map(rItem)]:[];
+    $('#qres').innerHTML=r.join('')||`<div class="empty">${k?'找不到相关单据':'输入关键字开始搜索'}</div>`};
+  $('#q').oninput=run;run();setTimeout(()=>$('#q').focus(),50);
+}
+function einv(){
+  const c=S.company,miss=S.customers.filter(x=>!x.tin);
+  openModal('e-Invoice 准备度',`
+    <ul class="check">${[[!!c.tin,'公司 TIN'],[!!c.ssm,'公司 SSM 注册号'],[!!c.msic,'MSIC 行业代码'],[!c.sstOn||!!c.sst,'SST 注册号']].map(([o,t])=>`<li class="${o?'':'no'}">${t}${o?'':' · 缺少'}</li>`).join('')}</ul>
+    <div><b>客户资料</b><p style="margin:4px 0 8px;color:var(--muted)">${S.customers.length-miss.length} / ${S.customers.length} 位客户已有 TIN。</p>
+    ${miss.length?`<div class="list" style="box-shadow:none;border:1px solid var(--line)">${miss.map(x=>`<button class="item" data-act="editCust" data-id="${x.id}"><span class="mid"><b>${esc(x.name)}</b><span>缺 TIN，点一下补上</span></span>${ic('chev')}</button>`).join('')}</div>`:''}</div>
+    <div class="note">这里只检查资料有没有填。正式版要接 LHDN MyInvois API 提交发票、取得 UUID 和 QR 码，字段要求以 LHDN 最新指引为准。</div>`);
+}
+function quickPay(){
+  const open=S.invoices.filter(i=>calc(i).total-paidOf(i)>0.005);
+  if(open.length===1)return payForm(open[0].id);
+  openModal('选择要收款的发票',`<div class="list" style="box-shadow:none;border:1px solid var(--line)">${open.map(i=>invItem(i).replace('data-act="viewI"','data-act="pay"')).join('')||'<div class="empty">没有未付款的发票</div>'}</div>`);
+}
+function fitPaper(){document.querySelectorAll('.paper-wrap').forEach(w=>{const p=w.querySelector('.paper');if(!p)return;const avail=w.clientWidth-24;const s=Math.min(1,avail/760);p.style.transform=s<1?`scale(${s})`:'';p.style.marginLeft=s<1?'0':'';w.style.height=s<1?(p.offsetHeight*s+24)+'px':''})}
+window.addEventListener('resize',fitPaper);
+
+/* ---------- suppliers, expenses & budget ---------- */
+const CATS={cos:['销售成本 / 外包','c-orange'],rent:['租金','c-violet'],staff:['薪金 & EPF/SOCSO','c-blue'],util:['水电 & 网络','c-yellow'],mkt:['营销广告','c-pink'],prof:['专业费用','c-green'],travel:['交通差旅','c-blue'],office:['办公用品','c-violet'],ent:['招待费','c-orange'],other:['其他','c-yellow']};
+function withExtra(o){
+  o.suppliers=[
+    {id:'s1',name:'Menara Contoh Management Sdn. Bhd.',brn:'200801012345 (812345-T)',tin:'C10987654320',sst:'',addr:'Menara Contoh, 50450 Kuala Lumpur',email:'billing@menaracontoh.example',phone:'+60 3-2000 1000',cat:'rent'},
+    {id:'s2',name:'Kuasa Utiliti Sdn. Bhd.',brn:'199501001234 (330000-U)',tin:'C20011223340',sst:'W10-1808-31000999',addr:'Petaling Jaya, Selangor',email:'bill@kuasa.example',phone:'+60 3-7000 2000',cat:'util'},
+    {id:'s3',name:'Cetak Pantas Enterprise',brn:'202203045678 (JM0987654-P)',tin:'IG12345678900',sst:'',addr:'Jalan Ipoh, 51200 Kuala Lumpur',email:'order@cetakpantas.example',phone:'+60 17-555 1234',cat:'mkt'},
+    {id:'s4',name:'Tan & Rahman Chartered Accountants',brn:'AF 001234',tin:'D12345678901',sst:'B16-1809-32000777',addr:'Bangsar South, 59200 Kuala Lumpur',email:'admin@tanrahman.example',phone:'+60 3-2280 0000',cat:'prof'}];
+  const months=Array.from({length:11},(_,i)=>'2026-'+String(i+1).padStart(2,'0'));
+  const E=[];let n=0;const add=(m,d,sup,cat,desc,amt,sst,paid=true,method='银行转账 (IBG/Instant)')=>{n++;E.push({id:'e'+n,no:'EXP-'+m.slice(2).replace('-','')+'-'+String(n).padStart(4,'0'),date:m+'-'+d,sup,cat,desc,amt,sst,bill:'',paid,method})};
+  const mkt=[1500,2200,1800,3000,2600,2400],ent=[300,450,200,600,380,520],cos=[2000,0,3500,0,4200,1500];
+  months.forEach((m,i)=>{
+    add(m,'01','s1','rent','Office rental',4500,0);
+    add(m,'10','s2','util','Electricity & fibre internet',540+(i%6)*12,0,i!==10);
+    add(m,'15','s4','prof','Monthly bookkeeping & payroll service',648,48);
+    const j=i%6;if(mkt[j])add(m,'18','s3','mkt','Brochures, banners & Meta ads',mkt[j],0);
+    if(ent[j])add(m,'20','','ent','Client lunch',ent[j],0,true,'现金 Cash');
+    if(cos[j])add(m,'12','','cos','Freelance researcher (project)',cos[j],0);
+    if(i<10)add(m,'28','','staff','Salary + EPF/SOCSO/EIS',12800,0);
+  });
+  o.expenses=E;o.seq.EXP=n;
+  o.budget={rev:25000,cats:{cos:3000,rent:4500,staff:13000,util:600,mkt:2000,prof:700,travel:500,office:300,ent:400,other:300}};
+  const rev=[24000,21000,26000,23500,28000,25000,30000,27000,31000,22000];
+  months.slice(0,10).forEach((m,i)=>{const c=i%2?'c2':'c1',id='h'+i;
+    o.invoices.push({id,no:'INV-'+m.slice(2).replace('-','')+'-0001',date:m+'-05',due:m+'-28',cust:c,fromQ:'',discount:0,notes:'',items:[{d:'Consulting services – '+m,q:1,p:rev[i],t:'st8'}]});
+    o.receipts.push({id:'hr'+i,no:'OR-'+m.slice(2).replace('-','')+'-0001',date:m+'-20',inv:id,amt:r2(rev[i]*1.08),method:'DuitNow',ref:''});
+  });
+  return o;
+}
+if(!S.suppliers)withExtra(S);
+const sup=id=>S.suppliers.find(x=>x.id===id);
+const inPeriod=(d,a,b)=>d.slice(0,7)>=a&&d.slice(0,7)<=b;
+const expTotal=(a,b=a)=>r2(S.expenses.filter(e=>inPeriod(e.date,a,b)).reduce((x,e)=>x+e.amt,0));
+const revTotal=(a,b=a)=>r2(S.invoices.filter(i=>inPeriod(i.date,a,b)).reduce((x,i)=>{const k=calc(i);return x+k.sub-k.disc},0));
+const sstOut=(a,b=a)=>r2(S.invoices.filter(i=>inPeriod(i.date,a,b)).reduce((x,i)=>x+calc(i).taxSum,0));
+const budTotal=()=>Object.values(S.budget.cats).reduce((a,b)=>a+(+b||0),0);
+function eItem(e){const c=CATS[e.cat]||CATS.other,sp=sup(e.sup);return `<button class="item" data-act="viewE" data-id="${e.id}"><span class="ib ${c[1]}">${ic('exp')}</span><span class="mid"><b>${esc(sp?sp.name:e.desc)}</b><span>${esc(c[0])} · ${fmtD(e.date)}${sp?' · '+esc(e.desc):''}</span></span><span class="end"><b>− ${money(e.amt)}</b>${e.paid?'<span class="pill p-ok">已付</span>':'<span class="pill p-warn">未付</span>'}</span></button>`}
+function budgetTeaser(m){
+  const used=expTotal(m),bud=budTotal(),pct=bud?Math.round(used/bud*100):0,profit=revTotal(m)-used;
+  const col=pct>100?'var(--bad)':pct>85?'var(--warn)':'var(--good)';
+  return `<button class="card white" data-go="report" style="flex-direction:column;align-items:stretch;gap:8px">
+    <div class="row" style="justify-content:space-between"><b>本月预算</b><span class="s">已用 ${pct}% · ${money(used)} / ${money(bud)}</span></div>
+    <div style="height:8px;border-radius:99px;background:var(--soft);overflow:hidden"><div style="height:100%;width:${Math.min(100,pct)}%;background:${col}"></div></div>
+    <div class="s">本月税前利润（收入不含 SST − 支出）：<b style="color:${profit<0?'var(--bad)':'var(--fg)'}">${money(profit)}</b></div></button>`;
+}
+function fabSheet(){
+  openModal('新增',`<div class="grid4" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+    <button class="sc" data-act="newQuote"><span class="ib c-orange">${ic('quote')}</span>报价单</button>
+    <button class="sc" data-act="newInv"><span class="ib c-violet">${ic('inv')}</span>发票</button>
+    <button class="sc" data-act="newExp"><span class="ib c-pink">${ic('exp')}</span>支出</button>
+    <button class="sc" data-act="quickPay"><span class="ib c-green">${ic('pay')}</span>收款</button>
+    <button class="sc" data-act="newCust"><span class="ib c-blue">${ic('cust')}</span>客户</button>
+    <button class="sc" data-act="newSup"><span class="ib c-orange">${ic('truck')}</span>供应商</button></div>`);
+}
+function expForm(id){
+  const e=id?{...S.expenses.find(x=>x.id===id)}:{id:uid(),date:today(),sup:'',cat:'other',desc:'',amt:'',sst:0,bill:'',paid:true,method:METHODS[0]};
+  openModal(id?'编辑支出 '+e.no:'记录支出',`<form id="xF" class="form">
+    <label class="f full">供应商<select id="x-sup"><option value="">（没有 / 不指定）</option>${S.suppliers.map(x=>`<option value="${x.id}" ${x.id===e.sup?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+    <label class="f">日期<input id="x-date" type="date" value="${e.date}" required></label>
+    <label class="f">类别<select id="x-cat">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===e.cat?'selected':''}>${v[0]}</option>`).join('')}</select></label>
+    <label class="f full">内容<input id="x-desc" value="${esc(e.desc)}" placeholder="例如：11月办公室租金" required></label>
+    <label class="f">总额 (RM) <small>实际付出的钱</small><input id="x-amt" type="number" step="0.01" min="0.01" value="${e.amt}" required></label>
+    <label class="f">其中 SST (RM) <small>没有就填 0</small><input id="x-sst" type="number" step="0.01" min="0" value="${e.sst}"></label>
+    <label class="f">供应商单据号<input id="x-bill" value="${esc(e.bill)}" placeholder="对方发票号"></label>
+    <label class="f">付款方式<select id="x-m">${METHODS.map(m=>`<option ${m===e.method?'selected':''}>${m}</option>`).join('')}</select></label>
+    <label class="chk full"><input type="checkbox" id="x-paid" ${e.paid?'checked':''}> 已付款（没勾 = 应付账款，之后再付）</label>
+    <div class="full" id="x-scanbox" hidden><button type="button" class="ai-card" data-act="scanBill" style="padding:10px 14px"><span class="ib" style="width:34px;height:34px">${ic('ai')}</span><span style="flex:1;min-width:0"><b style="font-size:14px">AI 读取单据照片</b><span class="s">拍供应商单据，自动填好下面的资料</span></span></button><div id="x-scanmsg" style="font-size:12.5px;color:var(--muted);margin-top:6px"></div></div>
+    <label class="f full">单据照片 <small>可选，1.5MB 以内</small><input id="x-att" type="file" accept="image/*"></label>
+    <div class="full note"><b>提醒：</b>SST 不像以前的 GST 可以扣回进项税，所以付给供应商的 SST 会直接算进成本。招待费在报税时通常只能扣一半，以 LHDN 规定为准。</div>
+    <div id="x-err" class="full" style="color:var(--bad)" hidden></div></form>`,
+    `${id?`<button class="btn" data-act="delE" data-id="${id}" style="color:var(--bad);margin-right:auto">删除</button>`:''}<button class="btn" data-act="close">取消</button><button class="btn pri" form="xF" type="submit">保存支出</button>`);
+  aiReady().then(ok=>{const b=document.getElementById('x-scanbox');if(b&&ok&&aiImg)b.hidden=false});
+  $('#x-sup').onchange=ev=>{const sp=sup(ev.target.value);if(sp&&sp.cat)$('#x-cat').value=sp.cat};
+  $('#xF').onsubmit=async ev=>{ev.preventDefault();const v=k=>$('#x-'+k).value.trim();
+    const amt=r2(+v('amt')),sst=r2(+v('sst')||0);
+    if(!(amt>0)||sst>amt){const er=$('#x-err');er.textContent='总额要大过 0，而且 SST 不能大过总额。';er.hidden=false;return}
+    Object.assign(e,{sup:v('sup'),date:v('date'),cat:v('cat'),desc:v('desc'),amt,sst,bill:v('bill'),method:v('m'),paid:$('#x-paid').checked});
+    const f=$('#x-att').files[0]||scanFile;scanFile=null;
+    if(f){if(f.size>1.5*1024*1024){const er=$('#x-err');er.textContent='照片超过 1.5MB，请换小一点的。';er.hidden=false;return}
+      e.att=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(f)})}
+    if(!id){e.no=nextNo('EXP',e.date);S.expenses.push(e)}else{S.expenses[S.expenses.findIndex(x=>x.id===id)]=e}
+    if(!saveChecked())return;closeModal();go('docs','expenses');toast(id?'支出已更新':`已记录支出 ${e.no}`)};
+}
+function viewE(id){
+  const e=S.expenses.find(x=>x.id===id),sp=sup(e.sup),c=CATS[e.cat]||CATS.other;
+  const row=(a,b)=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--muted)">${a}</span><span style="text-align:right">${b}</span></div>`;
+  openModal(`支出 ${e.no} ${e.paid?'<span class="pill p-ok">已付</span>':'<span class="pill p-warn">未付</span>'}`,`
+    <div style="font-family:var(--f-head);font-size:28px;font-weight:700" class="num">RM ${rm(e.amt)}</div>
+    <div>${row('供应商',sp?esc(sp.name):'—')}${row('类别',esc(c[0]))}${row('内容',esc(e.desc))}${row('日期',fmtD(e.date))}${row('其中 SST','RM '+rm(e.sst||0))}${row('供应商单据号',esc(e.bill)||'—')}${row('付款方式',esc(e.method))}</div>
+    ${e.att?`<img src="${e.att}" alt="单据照片" style="border-radius:12px;border:1px solid var(--line)">`:''}`,
+    `${!e.paid?`<button class="btn pri" data-act="expPaid" data-id="${id}">标记为已付款</button>`:''}<button class="btn" data-act="editE" data-id="${id}">编辑</button>`);
+}
+function editBudget(){
+  const b=S.budget;
+  openModal('每月预算',`<form id="bF" class="form">
+    <label class="f full">每月收入目标 (RM)<input id="b-rev" type="number" min="0" step="100" value="${b.rev}"></label>
+    ${Object.entries(CATS).map(([k,v])=>`<label class="f">${v[0]}<input data-b="${k}" type="number" min="0" step="50" value="${b.cats[k]||0}"></label>`).join('')}
+    <div class="full totals num" id="b-sum"></div></form>`,
+    `<button class="btn" data-act="close">取消</button><button class="btn pri" form="bF" type="submit">保存预算</button>`);
+  const sum=()=>{const t=[...document.querySelectorAll('[data-b]')].reduce((a,x)=>a+(+x.value||0),0),r=+$('#b-rev').value||0;$('#b-sum').innerHTML=`<div><span>支出预算合计</span><span>RM ${rm(t)}</span></div><div class="g"><span>预算利润</span><span>RM ${rm(r-t)}</span></div>`};
+  $('#bF').oninput=sum;sum();
+  $('#bF').onsubmit=ev=>{ev.preventDefault();b.rev=+$('#b-rev').value||0;document.querySelectorAll('[data-b]').forEach(x=>b.cats[x.dataset.b]=+x.value||0);save();closeModal();go('report');toast('预算已保存')};
+}
+function mLabel(m){const [y,mm]=m.split('-');return `${y}年${+mm}月`}
+function shiftM(m,n){const [y,mm]=m.split('-').map(Number);const d=new Date(y,mm-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function smeTax(x){if(x<=0)return 0;let t=Math.min(x,150000)*.15;if(x>150000)t+=(Math.min(x,600000)-150000)*.17;if(x>600000)t+=(x-600000)*.24;return r2(t)}
+function report(){
+  const end=repMonth,start=repMode==='ytd'?end.slice(0,4)+'-01':end,nM=repMode==='ytd'?+end.slice(5):1;
+  const ex=S.expenses.filter(e=>inPeriod(e.date,start,end));
+  const byCat={};ex.forEach(e=>byCat[e.cat]=(byCat[e.cat]||0)+e.amt);
+  const rev=revTotal(start,end),cos=r2(byCat.cos||0),opex=r2(ex.reduce((a,e)=>a+e.amt,0)-cos),gp=rev-cos,np=gp-opex;
+  const B=S.budget,bRev=B.rev*nM,bCos=(B.cats.cos||0)*nM,bOpex=(budTotal()-(B.cats.cos||0))*nM;
+  const unpaid=S.expenses.filter(e=>!e.paid).reduce((a,e)=>a+e.amt,0);
+  const months=[];for(let i=5;i>=0;i--)months.push(shiftM(end,-i));
+  const pl=(l,b,a,inv,strong)=>{const d=inv?b-a:a-b;return `<tr${strong?' style="font-weight:700"':''}><td>${l}</td><td class="r num">${rm(b)}</td><td class="r num">${rm(a)}</td><td class="r num" style="color:${d<0?'var(--bad)':'var(--good)'}">${d<0?'−':'+'}${rm(Math.abs(d))}</td></tr>`};
+  const opts=[];for(let i=0;i<12;i++){const m=shiftM(today().slice(0,7),-i);opts.push(`<option value="${m}" ${m===end?'selected':''}>${mLabel(m)}</option>`)}
+  const ent=byCat.ent||0,taxable=np+ent*.5;
+  $('#app').innerHTML=`${pageHead('预算报表','预算 vs 实际、损益、现金流一眼看清')}
+  <div class="body">
+    <div class="lift panel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px">
+      <div class="seg" style="flex:1;min-width:180px"><button class="${repMode==='month'?'on':''}" data-act="repMode" data-m="month">单月</button><button class="${repMode==='ytd'?'on':''}" data-act="repMode" data-m="ytd">今年至今</button></div>
+      <label class="f" style="flex:1;min-width:140px"><span class="vh">月份</span><select id="repM">${opts.join('')}</select></label></div>
+    <div class="duo">
+      <div class="card"><span class="ib c-green">${ic('pay')}</span><div style="min-width:0"><div class="s">收入（不含 SST）</div><div class="v num">${money(rev)}</div></div></div>
+      <div class="card"><span class="ib ${np<0?'c-pink':'c-violet'}">${ic('chart')}</span><div style="min-width:0"><div class="s">税前利润</div><div class="v num" style="color:${np<0?'var(--bad)':'inherit'}">${money(np)}</div></div></div>
+    </div>
+    <div class="panel"><h2>损益表 · ${repMode==='ytd'?mLabel(start)+' – '+mLabel(end):mLabel(end)}</h2><div class="tbl-wrap"><table class="t" style="min-width:420px"><thead><tr><th>项目 (RM)</th><th class="r">预算</th><th class="r">实际</th><th class="r">差额</th></tr></thead><tbody>
+      ${pl('收入',bRev,rev)}${pl('销售成本',bCos,cos,true)}${pl('毛利',bRev-bCos,gp,false,true)}${pl('营运费用',bOpex,opex,true)}${pl('税前利润',bRev-bCos-bOpex,np,false,true)}
+    </tbody></table></div><p style="color:var(--muted);font-size:12.5px;margin:8px 0 0">毛利率 ${rev?Math.round(gp/rev*100):0}% · 按发票日期计收入，按支出日期计费用（权责发生制）。</p></div>
+    <div class="panel"><h2>各类支出 vs 预算</h2><div style="display:flex;flex-direction:column;gap:12px">
+      ${Object.entries(CATS).filter(([k])=>(B.cats[k]||0)||byCat[k]).map(([k,v])=>{const a=r2(byCat[k]||0),b=(B.cats[k]||0)*nM,p=b?a/b*100:(a?101:0),col=p>100?'var(--bad)':p>85?'var(--warn)':'var(--good)';
+        return `<div><div class="row" style="justify-content:space-between;font-size:13px"><span>${v[0]}</span><span class="num"><b style="color:${p>100?'var(--bad)':'inherit'}">${rm(a)}</b> <span style="color:var(--muted)">/ ${rm(b)}</span></span></div><div style="height:7px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:4px"><div style="height:100%;width:${Math.min(100,p)}%;background:${col}"></div></div></div>`}).join('')}
+    </div><div class="row" style="margin-top:14px"><button class="btn sm" data-act="editBudget">设定预算</button></div></div>
+    <div class="panel"><h2>近 6 个月收入 vs 支出</h2>${barChart(months)}</div>
+    <div class="panel"><h2>要留意的数字</h2><div style="display:flex;flex-direction:column;gap:8px;font-size:13.5px">
+      <div class="row" style="justify-content:space-between"><span>期间代收的服务税（要交给 JKDM）</span><b class="num">RM ${rm(sstOut(start,end))}</b></div>
+      <div class="row" style="justify-content:space-between"><span>还没付给供应商的钱（应付账款）</span><b class="num">RM ${rm(unpaid)}</b></div>
+      <div class="row" style="justify-content:space-between"><span>还没收到的钱（应收账款）</span><b class="num">RM ${rm(S.invoices.reduce((a,i)=>a+Math.max(0,calc(i).total-paidOf(i)),0))}</b></div>
+      ${repMode==='ytd'?`<div class="row" style="justify-content:space-between"><span>粗估所得税（SME 税率 15% / 17% / 24%，招待费一半加回）</span><b class="num">RM ${rm(smeTax(taxable))}</b></div>`:''}
+    </div><p style="color:var(--muted);font-size:12px;margin:10px 0 0">所得税只是粗估，没算资本津贴、其他不可扣项目和以前年度亏损。SME 税率要符合实缴资本和营业额条件，报税请以会计师和 LHDN 为准。</p></div>
+  </div>`;
+  $('#repM').onchange=e=>{repMonth=e.target.value;render()};
+}
+function barChart(months){
+  const data=months.map(m=>({m,r:revTotal(m),e:expTotal(m)}));
+  const max=Math.max(1,...data.flatMap(d=>[d.r,d.e]));const step=Math.pow(10,Math.floor(Math.log10(max)));const top=[1,2,2.5,5,10].map(k=>k*step).find(v=>v>=max);
+  const W=340,H=190,L=40,B=24,T=10,ph=H-B-T,gw=(W-L-6)/data.length,bw=Math.min(16,gw/3);
+  const y=v=>T+ph-v/top*ph;
+  const ticks=[0,top/2,top];
+  return `<div style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:6px"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--g1);margin-right:5px"></i>收入</span><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--i-pink);margin-right:5px"></i>支出</span></div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="近 6 个月收入与支出">
+   ${ticks.map(t=>`<line x1="${L}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${t>=1000?(t/1000)+'k':t}</text>`).join('')}
+   ${data.map((d,i)=>{const cx=L+gw*i+gw/2;return `<rect x="${cx-bw-1}" y="${y(d.r)}" width="${bw}" height="${Math.max(0,T+ph-y(d.r))}" rx="3" fill="var(--g1)"><title>${mLabel(d.m)} 收入 RM ${rm(d.r)}</title></rect><rect x="${cx+1}" y="${y(d.e)}" width="${bw}" height="${Math.max(0,T+ph-y(d.e))}" rx="3" fill="var(--i-pink)"><title>${mLabel(d.m)} 支出 RM ${rm(d.e)}</title></rect><text x="${cx}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--muted)">${+d.m.slice(5)}月</text>`}).join('')}
+  </svg>`;
+}
+
+/* ---------- AI assistant (Claude via the artifact's sample capability) ---------- */
+let aiFn,aiImg=false,aiTools=false,aiCtl=null,aiBusy=false,aiMsgs=[],aiTurns=[],scanFile=null;
+async function aiReady(){
+  if(aiFn!==undefined)return !!aiFn;
+  try{aiFn=window.claude?.use?await window.claude.use('sample'):null}catch(e){aiFn=null}
+  if(aiFn){try{const l=await aiFn.limits();aiImg=!!l.images;aiTools=!!l.tools}catch(e){}}
+  return !!aiFn;
+}
+const AI_ERR={not_granted:'你没有允许这个页面使用 Claude，所以 AI 功能先关闭。',sampling_disabled:'这个账号目前不能用 Claude。',rate_limited:'用得太密了，等一下再试。',session_expired:'登入过期了，请重新登入 Claude。',refused:'这个要求 AI 不能处理，换个说法试试。',image_rejected:'这张照片读不到，换一张清楚一点的。',images_unavailable:'这里不能传照片给 AI。',tools_unavailable:'这里 AI 只能回答问题，不能帮你开单记账。'};
+const aiErr=e=>AI_ERR[e?.code]||'AI 暂时连不上，请再试一次。';
+function snapshot(){
+  const m=today().slice(0,7),y=m.slice(0,4)+'-01';
+  return JSON.stringify({today:today(),company:S.company.name,sst_registered:S.company.sstOn,default_tax:S.company.defTax,payment_terms_days:S.company.terms,
+    receivable_total:r2(S.invoices.reduce((a,i)=>a+Math.max(0,calc(i).total-paidOf(i)),0)),
+    open_invoices:S.invoices.filter(i=>calc(i).total-paidOf(i)>0.005).map(i=>({no:i.no,customer:cust(i.cust).name,due:i.due,balance:r2(calc(i).total-paidOf(i)),status:invStatus(i)[0]})),
+    open_quotes:S.quotes.filter(q=>['draft','sent','accepted'].includes(q.status)).map(q=>({no:q.no,customer:cust(q.cust).name,total:calc(q).total,status:q.status,valid:q.valid})),
+    this_month:{revenue_excl_sst:revTotal(m),expenses:expTotal(m),budget_expenses:budTotal(),budget_revenue:S.budget.rev},
+    year_to_date:{revenue_excl_sst:revTotal(y,m),expenses:expTotal(y,m)},
+    customers:S.customers.map(c=>c.name),suppliers:S.suppliers.map(c=>c.name),expense_categories:Object.fromEntries(Object.entries(CATS).map(([k,v])=>[k,v[0]]))});
+}
+const RULES=()=>`你是「${S.company.name}」会计系统里的 AI 助理，这是一家马来西亚公司。用简体中文、口语、简短地回答（马来西亚华人的说法），金额用 RM 加两位小数。
+规则：
+- 只根据下面的资料和工具结果回答，不要编数字。不确定就说不确定。
+- 税务问题（SST、所得税、e-Invoice）可以给一般说明，但要提醒以 JKDM / LHDN 最新规定和会计师意见为准。
+- 用户要你开报价单、记支出、记录收款、把报价转发票时，用工具去做；做完简短说明做了什么和单据编号。资料不够就先问，不要乱猜价钱。
+- 要写 WhatsApp / 电邮信息时，直接写好给用户复制，客户信息用英文或用户指定的语言。
+- 回答用短段落或简单列点，不要用表格。
+目前资料（JSON）：${snapshot()}`;
+const findBy=(arr,name)=>{const n=String(name||'').trim().toLowerCase();if(!n)return null;return arr.find(c=>c.name.toLowerCase()===n)||arr.find(c=>c.name.toLowerCase().includes(n)||n.includes(c.name.toLowerCase()))};
+function aiToolList(refs,step){
+  const note=t=>step(t);
+  return [
+    {name:'list_documents',description:'列出单据。type: quotes | invoices | receipts | expenses。可选 month (YYYY-MM) 和 name（客户或供应商名称关键字）。回传最多 40 条精简资料。',
+     inputSchema:{type:'object',properties:{type:{type:'string',enum:['quotes','invoices','receipts','expenses']},month:{type:'string'},name:{type:'string'}},required:['type']},
+     execute:(a)=>{note('查看单据…');const t=String(a.type),mo=a.month?String(a.month):'',nm=String(a.name||'').toLowerCase();
+       const okM=d=>!mo||d.startsWith(mo),okN=x=>!nm||x.toLowerCase().includes(nm);
+       let out=[];
+       if(t==='quotes')out=S.quotes.filter(q=>okM(q.date)&&okN(cust(q.cust).name)).map(q=>({no:q.no,date:q.date,customer:cust(q.cust).name,total:calc(q).total,status:q.status,items:q.items.map(i=>i.d)}));
+       else if(t==='invoices')out=S.invoices.filter(i=>okM(i.date)&&okN(cust(i.cust).name)).map(i=>({no:i.no,date:i.date,due:i.due,customer:cust(i.cust).name,total:calc(i).total,paid:paidOf(i),status:invStatus(i)[0]}));
+       else if(t==='receipts')out=S.receipts.filter(r=>okM(r.date)).map(r=>{const i=S.invoices.find(x=>x.id===r.inv)||{};return {no:r.no,date:r.date,invoice:i.no,customer:cust(i.cust).name,amount:r.amt,method:r.method}}).filter(r=>okN(r.customer||''));
+       else out=S.expenses.filter(e=>okM(e.date)&&okN((sup(e.sup)||{}).name||e.desc)).map(e=>({no:e.no,date:e.date,supplier:(sup(e.sup)||{}).name||'',category:e.cat,description:e.desc,amount:e.amt,sst:e.sst,paid:e.paid}));
+       return out.slice(-40)}},
+    {name:'create_quote',description:'开一张新的报价单（草稿）。customer_name 要对上现有客户；找不到又确定是新客户时设 create_customer:true。items 每项 {description, qty, unit_price}，价钱是 RM、不含 SST。回传报价单编号和总额。',
+     inputSchema:{type:'object',properties:{customer_name:{type:'string'},create_customer:{type:'boolean'},items:{type:'array',items:{type:'object',properties:{description:{type:'string'},qty:{type:'number'},unit_price:{type:'number'}},required:['description','qty','unit_price']}},discount:{type:'number'},notes:{type:'string'}},required:['customer_name','items']},
+     execute:(a)=>{let c=findBy(S.customers,a.customer_name);
+       if(!c){if(!a.create_customer)throw new Error('找不到客户「'+a.customer_name+'」。现有客户：'+S.customers.map(x=>x.name).join('、'));c={id:uid(),name:String(a.customer_name).trim(),brn:'',tin:'',sst:'',addr:'',email:'',phone:''};S.customers.push(c)}
+       const items=(Array.isArray(a.items)?a.items:[]).map(i=>({d:String(i.description||'').trim(),q:Number(i.qty)||1,p:Number(i.unit_price)||0,t:S.company.sstOn?S.company.defTax:'none'})).filter(i=>i.d);
+       if(!items.length)throw new Error('没有有效的项目');
+       const d=today(),q={id:uid(),no:nextNo('QT',d),date:d,valid:addDays(d,S.company.validity),cust:c.id,status:'draft',discount:Number(a.discount)||0,notes:String(a.notes||''),items};
+       S.quotes.push(q);save();refs.push(['viewQ',q.id,'查看 '+q.no]);note('已开 '+q.no);return {no:q.no,customer:c.name,total:calc(q).total,sst:calc(q).taxSum}}},
+    {name:'convert_quote_to_invoice',description:'把报价单转成发票。输入报价单编号 quote_no。回传发票编号和总额。',
+     inputSchema:{type:'object',properties:{quote_no:{type:'string'}},required:['quote_no']},
+     execute:(a)=>{const q=S.quotes.find(x=>x.no.toLowerCase()===String(a.quote_no).trim().toLowerCase());if(!q)throw new Error('找不到报价单 '+a.quote_no);
+       if(q.status==='converted')throw new Error('这张报价单已经转过发票');
+       const d=today(),inv={id:uid(),no:nextNo('INV',d),date:d,due:addDays(d,S.company.terms),cust:q.cust,fromQ:q.id,discount:q.discount,notes:q.notes,items:q.items.map(i=>({...i}))};
+       S.invoices.push(inv);q.status='converted';save();refs.push(['viewI',inv.id,'查看 '+inv.no]);note('已开 '+inv.no);return {invoice_no:inv.no,total:calc(inv).total,due:inv.due}}},
+    {name:'record_payment',description:'记录客户付款并自动开正式收据。invoice_no 必填；amount 不填就当付清余额；method 是 Bank Transfer / DuitNow / FPX / Cheque / Cash；date 是 YYYY-MM-DD，不填用今天。',
+     inputSchema:{type:'object',properties:{invoice_no:{type:'string'},amount:{type:'number'},method:{type:'string'},date:{type:'string'},reference:{type:'string'}},required:['invoice_no']},
+     execute:(a)=>{const i=S.invoices.find(x=>x.no.toLowerCase()===String(a.invoice_no).trim().toLowerCase());if(!i)throw new Error('找不到发票 '+a.invoice_no);
+       const bal=r2(calc(i).total-paidOf(i));if(bal<=0.005)throw new Error('这张发票已经付清');
+       const amt=a.amount==null?bal:r2(Number(a.amount));if(!(amt>0)||amt>bal+0.005)throw new Error('金额要介于 0.01 和 '+bal+' 之间');
+       const mm=String(a.method||'').toLowerCase(),method=METHODS.find(m=>m.toLowerCase().includes(mm)||(METHOD_EN[m]||'').toLowerCase()===mm)||METHODS[0];
+       const date=/^\d{4}-\d{2}-\d{2}$/.test(String(a.date||''))?String(a.date):today();
+       const r={id:uid(),no:nextNo('OR',date),date,inv:i.id,amt,method,ref:String(a.reference||'')};S.receipts.push(r);save();refs.push(['viewR',r.id,'查看 '+r.no]);note('已开收据 '+r.no);
+       return {receipt_no:r.no,amount:amt,balance_left:r2(bal-amt)}}},
+    {name:'record_expense',description:'记录一笔支出。category 必须是 expense_categories 里的 key；amount 是实际付出的总额 (RM)；sst 是其中的 SST，没有就 0；supplier_name 可选，要对上现有供应商；paid 默认 true；date 不填用今天。',
+     inputSchema:{type:'object',properties:{supplier_name:{type:'string'},category:{type:'string'},description:{type:'string'},amount:{type:'number'},sst:{type:'number'},date:{type:'string'},paid:{type:'boolean'}},required:['category','description','amount']},
+     execute:(a)=>{const amt=r2(Number(a.amount));if(!(amt>0))throw new Error('金额要大过 0');
+       const cat=CATS[a.category]?String(a.category):'other',sp=a.supplier_name?findBy(S.suppliers,a.supplier_name):null;
+       const date=/^\d{4}-\d{2}-\d{2}$/.test(String(a.date||''))?String(a.date):today();
+       const e={id:uid(),no:nextNo('EXP',date),date,sup:sp?sp.id:'',cat,desc:String(a.description)+(a.supplier_name&&!sp?' ('+a.supplier_name+')':''),amt,sst:r2(Number(a.sst)||0),bill:'',paid:a.paid!==false,method:METHODS[0]};
+       S.expenses.push(e);save();refs.push(['viewE',e.id,'查看 '+e.no]);note('已记 '+e.no);return {no:e.no,category:CATS[cat][0],amount:amt,supplier_matched:!!sp}}}
+  ];
+}
+function md(t){
+  const lines=esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').split('\n');let out='',inL=false;
+  lines.forEach(l=>{const m=l.match(/^\s*[-•*]\s+(.*)/);if(m){if(!inL){out+='<ul>';inL=true}out+='<li>'+m[1]+'</li>'}else{if(inL){out+='</ul>';inL=false}if(l.trim())out+='<p>'+l.replace(/^#+\s*/,'')+'</p>'}});
+  return out+(inL?'</ul>':'');
+}
+const AI_CHIPS=['这个月生意怎样？','谁欠我钱最久？帮我写 WhatsApp 催款信息','帮 Bintang Maju 开报价单：品牌顾问 2 次，每次 RM2,500','记一笔支出：今天停车费 RM15','今年哪类支出超预算？','SST 每两个月要交多少？'];
+function ai(){
+  $('#app').innerHTML=`${pageHead('AI 助理','问账目、开单、记账、写信息，用平常说话的方式就行')}
+  <div class="body"><div class="chat lift" id="chat">
+    ${aiMsgs.length?'':`<div class="panel"><b>你可以这样问：</b><div class="chips" style="margin-top:10px">${AI_CHIPS.map(q=>`<button class="chipq" data-act="aiAsk" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+      <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">可以按相机按钮拍单据或客户订单，也可以按麦克风直接说“帮我开单给某某”。手机上如果没有麦克风按钮，用键盘上的语音输入一样可以。AI 用的是你自己的 Claude 额度，第一次会问你允不允许。它开的单和记的账都可以一键撤销。</p></div>`}
+    ${aiMsgs.map((m,i)=>m.who==='me'?`<div class="msg me">${m.img?`<img class="ph" src="${m.img}" alt="照片">`:''}${esc(m.text)}</div>`:`<div class="msg ai">${m.text?md(m.text):`<span class="step">${esc(m.step||'思考中…')}</span>`}${(m.refs&&m.refs.length)||m.undo?`<div class="acts">${(m.refs||[]).map(r=>`<button class="btn sm" data-act="${r[0]}" data-id="${r[1]}">${esc(r[2])}</button>`).join('')}${m.undo?`<button class="btn sm" data-act="aiUndo" data-i="${i}">撤销</button>`:''}</div>`:''}</div>`).join('')}
+    ${aiMsgs.length&&!aiBusy?`<div class="row" style="justify-content:center"><button class="btn ghost sm" data-act="aiClear">清除对话</button></div>`:''}
+  </div></div>`;
+  let ab=document.getElementById('askbar');
+  if(!ab){ab=document.createElement('div');ab.id='askbar';ab.className='askbar';document.body.appendChild(ab);
+    ab.innerHTML=`<div class="att" id="attBox" hidden></div><form id="askF"><button type="button" class="ico" data-act="aiCam" aria-label="拍照或选照片" title="拍照 / 选照片">${ic('cam')}</button><label class="vh" for="askIn">问 AI 助理</label><input id="askIn" placeholder="打字或按麦克风说：帮我开单给…" autocomplete="off"><button type="button" class="ico" id="micBtn" data-act="aiMic" aria-label="语音输入" title="语音输入" hidden>${ic('mic')}</button><button type="submit" id="askBtn">发送</button></form>`;
+    $('#askF').onsubmit=e=>{e.preventDefault();if(aiBusy){aiCtl?.abort();return}sendAsk()}}
+  initDict();drawAtt();
+  ab.hidden=false;$('#askBtn').textContent=aiBusy?'停止':'发送';
+  aiReady().then(ok=>{if(!ok&&page==='ai'&&!document.getElementById('noai')){$('#chat').insertAdjacentHTML('afterbegin','<div class="note" id="noai"><b>AI 暂时用不到：</b>要在 Claude 里打开这个页面（已登入），AI 助理才会启动。其他功能照常可以用。</div>')}});
+  const c=$('#chat');if(aiMsgs.length)c.lastElementChild?.scrollIntoView({block:'end'});
+}
+
+let aiPhoto=null,dict,dictBase='',dictOn=false;
+const PHOTO_Q='帮我看这张照片：如果是供应商单据或收据，就帮我记成支出；如果是客户的订单、需求或手写报价，就帮我开报价单。资料不够的先问我。';
+function sendAsk(){const v=$('#askIn').value.trim()||(aiPhoto?PHOTO_Q:'');if(!v)return;$('#askIn').value='';dictBase='';aiAsk(v)}
+function drawAtt(){const b=document.getElementById('attBox');if(!b)return;b.hidden=!aiPhoto;
+  b.innerHTML=aiPhoto?`<img src="${URL.createObjectURL(aiPhoto)}" alt=""><span style="flex:1">已附照片，可以直接按发送，或补充说明</span><button type="button" class="btn sm" data-act="aiRmPhoto">移除</button>`:''}
+function initDict(){
+  const show=()=>{const b=document.getElementById('micBtn');if(b){b.hidden=!dict;b.classList.toggle('rec',dictOn)}};
+  if(dict!==undefined)return show();
+  dict=null;
+  (async()=>{let d=null;try{d=window.claude?.use?await window.claude.use('dictation'):null}catch(e){}
+    dict=d;if(d){
+      d.onPartial(({text})=>{const i=document.getElementById('askIn');if(i)i.value=(dictBase+text).trimStart()});
+      d.onFinal(({text})=>{dictBase=(dictBase+text);const i=document.getElementById('askIn');if(i)i.value=dictBase.trimStart()});
+      d.onState(({state,reason})=>{dictOn=state!=='idle';show();
+        if(state==='idle'){if(reason==='unavailable'){dict=null;show()}
+          if((reason==='stopped'||reason==='viewer_stopped')&&$('#askIn')?.value.trim())sendAsk();
+          else if(reason==='not_granted')toast('麦克风没有开放，可以用打字');}});
+    }show()})();
+}
+function micClick(){
+  if(!dict)return;
+  if(dict.active()){dict.stop();return}
+  dictBase=$('#askIn').value?$('#askIn').value+' ':'';
+  dict.start().catch(e=>{if(e.code==='not_granted')toast('你没有允许语音输入，可以用打字');else if(e.code==='unavailable'){dict=null;initDict()}else if(e.code!=='stopped'&&e.code!=='dismissed')toast('语音暂时用不到，请再试')});
+}
+async function aiAsk(q){
+  if(aiBusy)return;
+  if(page!=='ai')go('ai');
+  if(!(await aiReady())){toast('要在 Claude 里打开，AI 才能用');return}
+  const img=aiPhoto;aiPhoto=null;if(img&&!aiImg){toast('这里不能传照片给 AI');return}
+  aiMsgs.push({who:'me',text:q,img:img?URL.createObjectURL(img):''});drawAtt();const m={who:'ai',text:'',step:'思考中…',refs:[]};aiMsgs.push(m);
+  aiTurns.push({role:'user',content:img?q+'\n（附了一张照片）':q});aiBusy=true;render();
+  const before=JSON.stringify(S),refs=m.refs;aiCtl=new AbortController();
+  const paint=()=>{if(page==='ai')render()};
+  try{
+    const opts={signal:aiCtl.signal,cache:false,onText:({text})=>{m.text=text;paint()}};
+    if(img)opts.images=img;
+    if(aiTools){opts.tools=aiToolList(refs,t=>{m.step=t;paint()});delete opts.cache}
+    const {text,truncated}=await aiFn([{role:'user',content:RULES()},...aiTurns.slice(-12)],opts);
+    m.text=text+(truncated?'\n\n（回答太长被截断了，可以叫我分开讲）':'');aiTurns.push({role:'assistant',content:text});
+  }catch(e){m.text=(e.text?e.text+'\n\n':'')+(e.code==='cancelled'?'（已停止）':aiErr(e));aiTurns.pop()}
+  finally{aiBusy=false;if(JSON.stringify(S)!==before)m.undo=before;render()}
+}
+async function scanBill(f){
+  const msg=$('#x-scanmsg');if(!msg)return;
+  if(!(await aiReady())||!aiImg){msg.textContent='这里不能用 AI 读照片。';return}
+  msg.textContent='AI 正在读单据，大约要 10 至 30 秒…';
+  try{
+    const r=await aiFn.json(`这是一张马来西亚供应商的单据/收据照片。读出资料，只回传一个 JSON 物件：{"supplier_name":string|null,"date":"YYYY-MM-DD"|null,"description":string（简短，中文或单据原文）,"total_amount":number|null（实际要付的总额 RM，含税）,"sst_amount":number（单据上的 SST/服务税/销售税，没有就 0）,"bill_no":string|null,"category":"${Object.keys(CATS).join('|')}"}。看不清楚的栏位用 null，不要猜。类别说明：${Object.entries(CATS).map(([k,v])=>k+'='+v[0]).join('，')}。`,{images:f,modelTier:'default'});
+    const set=(id,v)=>{const el=$('#'+id);if(el&&v!=null&&v!=='')el.value=v};
+    set('x-date',/^\d{4}-\d{2}-\d{2}$/.test(r.date||'')?r.date:null);set('x-desc',r.description);set('x-amt',Number(r.total_amount)>0?Number(r.total_amount).toFixed(2):null);
+    set('x-sst',Number(r.sst_amount)>=0?Number(r.sst_amount).toFixed(2):null);set('x-bill',r.bill_no);if(CATS[r.category])set('x-cat',r.category);
+    const sp=r.supplier_name?findBy(S.suppliers,r.supplier_name):null;if(sp)set('x-sup',sp.id);
+    if(f.size<=1.5*1024*1024)scanFile=f;
+    msg.innerHTML=`已自动填好，请核对一次再保存。${r.supplier_name&&!sp?`供应商「${esc(r.supplier_name)}」不在名单里，可以之后在供应商页新增。`:''}`;
+  }catch(e){msg.textContent=e.code==='invalid_json'?'读不出单据内容，换一张清楚一点的照片试试。':aiErr(e)}
+}
+
+/* ---------- backup, restore & accountant export ---------- */
+async function saveFile(name,data,okMsg){
+  if(dl===undefined){try{dl=window.claude?.use?await window.claude.use('downloads'):null}catch(e){dl=null}}
+  if(dl){try{await dl.save({filename:name,data});toast(okMsg);return true}catch(e){if(e.code!=='declined')toast('这里不能保存文件：'+(e.code||'未知原因'));return false}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(okMsg);return true;
+}
+function backupSheet(){
+  const last=S.lastBackup?fmtD(S.lastBackup):'还没备份过';
+  openModal('备份与还原',`
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line)"><b>A. 直接存进 Google Drive（推荐）</b>
+      <p style="margin:6px 0 10px;color:var(--muted);font-size:13px">用你 Claude 账号连接的 Google Drive，一键存到「账簿通备份」文件夹，也可以开自动备份。</p>
+      <button class="btn pri" data-act="drive">打开 Google Drive 备份</button></div>
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line)"><b>B. 存成备份档，自己放进 Google Drive</b>
+      <p style="margin:6px 0 10px;color:var(--muted);font-size:13px">把所有资料（客户、供应商、单据、支出、预算、logo、上传的文件）存成一个备份档。<br><b>手机：</b>按下面的按钮后会跳出分享选单，选“Drive”或“存储到 Google Drive”。<br><b>电脑：</b>文件会下载到电脑，再拖进 Google Drive 的文件夹。<br>上次备份：${last}</p>
+      <button class="btn" data-act="doBackup">备份全部资料</button></div>
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line)"><b>C. 从备份档还原</b>
+      <p style="margin:6px 0 10px;color:var(--muted);font-size:13px">换手机或换电脑时，从 Google Drive 选回备份档（.json）。会覆盖现在这台设备上的资料。</p>
+      <button class="btn" data-act="pickRestore">选择备份档</button><div id="rsMsg" style="margin-top:8px;font-size:13px"></div></div>
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line)"><b>D. 给会计师的资料</b>
+      <p style="margin:6px 0 10px;color:var(--muted);font-size:13px">导出 CSV，Excel 和 Google Sheets 都能直接打开。</p>
+      <div class="row"><button class="btn sm" data-act="csv" data-k="invoices">发票与收款</button><button class="btn sm" data-act="csv" data-k="expenses">支出</button><button class="btn sm" data-act="csv" data-k="receipts">收据</button></div></div>`);
+}
+async function doBackup(){
+  const data=JSON.stringify({app:'akaun',version:1,exported:new Date().toISOString(),data:S});
+  const ok=await saveFile(`Akaun-backup_${stamp()}.json`,new Blob([data],{type:'application/json'}),'备份档已保存');
+  if(ok){S.lastBackup=today();save();if(!$('#ov').hidden)backupSheet()}
+}
+let restorePending=null;
+function readRestore(f){
+  const rd=new FileReader();
+  rd.onload=()=>{const m=$('#rsMsg');try{const j=JSON.parse(rd.result),d=j&&j.app==='akaun'?j.data:j;
+      if(!d||!d.company||!Array.isArray(d.invoices)||!Array.isArray(d.customers))throw 0;
+      restorePending=d;
+      m.innerHTML=`备份日期 ${j.exported?fmtD(j.exported.slice(0,10)):'不详'}：${d.customers.length} 位客户、${(d.quotes||[]).length} 张报价单、${d.invoices.length} 张发票、${(d.expenses||[]).length} 笔支出。<div class="row" style="margin-top:8px"><button class="btn pri sm" data-act="doRestore">确认还原（覆盖现有资料）</button></div>`;
+    }catch(e){restorePending=null;m.innerHTML='<span style="color:var(--bad)">这不是账簿通的备份档，请选回之前备份的 .json 文件。</span>'}};
+  rd.readAsText(f);
+}
+function doRestore(){if(!restorePending)return;S=restorePending;restorePending=null;if(!S.suppliers)withExtra(S);S.files=S.files||[];if(!saveChecked())return;closeModal();go('home');toast('资料已还原')}
+function csvOut(rows){return '﻿'+rows.map(r=>r.map(v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\r\n')}
+function exportCSV(k){
+  let rows;
+  if(k==='invoices')rows=[['Invoice No','Date','Due','Customer','Customer BRN','Customer TIN','Subtotal','Discount','SST','Total','Paid','Balance','Status']].concat(S.invoices.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(i=>{const c=calc(i),cu=cust(i.cust),p=paidOf(i);return [i.no,i.date,i.due,cu.name,cu.brn,cu.tin,c.sub,c.disc,c.taxSum,c.total,p,r2(c.total-p),invStatus(i)[0]]}));
+  else if(k==='receipts')rows=[['Receipt No','Date','Invoice No','Customer','Amount','Method','Reference']].concat(S.receipts.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(r=>{const i=S.invoices.find(x=>x.id===r.inv)||{};return [r.no,r.date,i.no,cust(i.cust).name,r.amt,METHOD_EN[r.method]||r.method,r.ref]}));
+  else rows=[['Expense No','Date','Supplier','Supplier TIN','Category','Description','Amount (incl. SST)','SST','Supplier Bill No','Paid','Method']].concat(S.expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>{const sp=sup(e.sup)||{};return [e.no,e.date,sp.name||'',sp.tin||'',(CATS[e.cat]||CATS.other)[0],e.desc,e.amt,e.sst,e.bill,e.paid?'Yes':'No',METHOD_EN[e.method]||e.method]}));
+  saveFile(`Akaun-${k}_${today()}.csv`,new Blob([csvOut(rows)],{type:'text/csv'}),'CSV 已导出');
+}
+
+/* ---------- PDF export & WhatsApp ---------- */
+const WA_SVG='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3z"/></svg>';
+const shareBtns=(k,id)=>`<button class="btn" data-act="pdf" data-k="${k}" data-id="${id}">导出 PDF</button><button class="btn" data-act="wa" data-k="${k}" data-id="${id}" style="color:#128C4B">${WA_SVG}WhatsApp</button>`;
+function docInfo(k,id){
+  if(k==='Q'){const q=S.quotes.find(x=>x.id===id);return {no:q.no,c:cust(q.cust),html:docPaper('Q',q),label:'Quotation',amt:calc(q).total,extra:`Valid until ${fmtD(q.valid)}.`}}
+  if(k==='I'){const i=S.invoices.find(x=>x.id===id),t=calc(i).total;return {no:i.no,c:cust(i.cust),html:docPaper('I',i),label:'Invoice',amt:t-paidOf(i),extra:`Due ${fmtD(i.due)}. Payment to: ${S.company.bank}`}}
+  const r=S.receipts.find(x=>x.id===id),i=S.invoices.find(x=>x.id===r.inv);return {no:r.no,c:cust(i.cust),html:rcptPaper(r),label:'Official Receipt',amt:r.amt,extra:`Payment received for ${i.no}. Thank you!`};
+}
+let dl;
+async function exportPDF(k,id,btn){
+  const d=docInfo(k,id);
+  if(!window.html2canvas||!window.jspdf)return toast('PDF 工具还没载入，请稍后再试');
+  const old=btn.textContent;btn.disabled=true;btn.textContent='生成中…';
+  const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;width:760px';host.innerHTML=d.html;document.body.appendChild(host);
+  try{
+    const cv=await html2canvas(host.firstElementChild,{scale:2,backgroundColor:'#ffffff',useCORS:true});
+    const pdf=new jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});pdf.setProperties({title:d.no});const W=210,H=297,h=cv.height*W/cv.width;
+    const img=cv.toDataURL('image/jpeg',0.92);let y=0;
+    pdf.addImage(img,'JPEG',0,0,W,h);
+    for(y=H;y<h-2;y+=H){pdf.addPage();pdf.addImage(img,'JPEG',0,-y,W,h)}
+    const blob=pdf.output('blob');const name=`${d.no} ${d.c.name}.pdf`.replace(/[\\/:*?"<>|]/g,'');
+    await saveFile(name,blob,'PDF 已导出');
+  }catch(e){toast('PDF 生成失败，请再试一次')}
+  finally{host.remove();btn.disabled=false;btn.textContent=old}
+}
+function waSend(k,id){
+  const d=docInfo(k,id);
+  let ph=(d.c.phone||'').replace(/\D/g,'');if(ph.startsWith('0'))ph='6'+ph;
+  const msg=`Hi ${d.c.name},\n\nPlease find our ${d.label} ${d.no} from ${S.company.name}.\nAmount: RM ${rm(d.amt)}\n${d.extra}\n\n(PDF attached separately)\nThank you.`;
+  const url=`https://wa.me/${ph}?text=${encodeURIComponent(msg)}`;
+  openModal('WhatsApp 发送',`<p style="margin:0">发送给 <b>${esc(d.c.name)}</b>${ph?' · +'+ph:'（没有电话号码，打开后自己选联络人）'}</p>
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line);white-space:pre-wrap;font-size:13px">${esc(msg)}</div>
+    <div class="note"><b>步骤：</b>1）先按“导出 PDF”，手机上会出现分享选单，可以直接选 WhatsApp；2）或按下面打开 WhatsApp，先发这段文字，再把 PDF 附上。WhatsApp 的链接只能带文字，不能自动附 PDF。</div>`,
+    `<button class="btn" data-act="pdf" data-k="${k}" data-id="${id}">导出 PDF</button><a class="btn pri" href="${url}" target="_blank" rel="noopener" style="text-decoration:none">打开 WhatsApp</a>`);
+}
+
+/* ---------- events ---------- */
+let resetArm=false;
+document.addEventListener('click',e=>{
+  if(e.target.id==='ov')return closeModal();
+  const g=e.target.closest('[data-go]');if(g){closeModal();return go(g.dataset.go,g.dataset.tab)}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const id=b.dataset.id,a=b.dataset.act;
+  switch(a){
+    case 'close':return closeModal();
+    case 'newQuote':return editor('Q');
+    case 'newInv':return editor('I');
+    case 'editQ':return editor('Q',S.quotes.find(x=>x.id===id));
+    case 'viewQ':return viewQ(id);
+    case 'viewI':return viewI(id);
+    case 'viewR':return viewR(id);
+    case 'pay':return payForm(id);
+    case 'quickPay':return quickPay();
+    case 'toInv':return toInv(id);
+    case 'qstat':{const q=S.quotes.find(x=>x.id===id);q.status=b.dataset.s;save();render();viewQ(id);return toast('报价单状态已更新')}
+    case 'newCust':return custForm();
+    case 'editCust':return custForm(id);
+    case 'addLine':draft.items.push({d:'',q:1,p:0,t:S.company.sstOn?S.company.defTax:'none'});return drawLines();
+    case 'rmLine':draft.items.splice(+b.dataset.i,1);return drawLines();
+    case 'hide':S.hide=!S.hide;save();return render();
+    case 'search':return search();
+    case 'editCo':return editCo();
+    case 'brand':return brand();
+    case 'drive':return driveModal();
+    case 'driveSave':return driveBackup(false);
+    case 'driveLoad':return driveRestore(b);
+    case 'driveAutoT':{const d=drvState();d.on=!d.on;drvSet(d);return driveModal()}
+    case 'pickLogo':return $('#f-logo').click();
+    case 'rmLogo':S.company.logo='';save();render();brand();return toast('已移除 logo');
+    case 'theme':S.company.theme=+b.dataset.i;save();render();return brand();
+    case 'importCust':return importCust(b.dataset.k);
+    case 'impK':impKind=b.dataset.k;document.querySelectorAll('#impSeg button').forEach(x=>x.classList.toggle('on',x===b));if(lastImp[0])previewCust(lastImp[0],lastImp[1]);return;
+    case 'fab':return fabSheet();
+    case 'backup':return backupSheet();
+    case 'doBackup':return doBackup();
+    case 'pickRestore':return $('#f-restore').click();
+    case 'doRestore':return doRestore();
+    case 'csv':return exportCSV(b.dataset.k);
+    case 'aiAsk':return aiAsk(b.dataset.q);
+    case 'aiStop':aiCtl?.abort();return;
+    case 'aiMic':return micClick();
+    case 'aiCam':return $('#f-aiimg').click();
+    case 'aiRmPhoto':aiPhoto=null;return drawAtt();
+    case 'aiUndo':{const m=aiMsgs[+b.dataset.i];if(m&&m.undo){S=JSON.parse(m.undo);m.undo=null;m.refs=[];save();aiMsgs.push({who:'ai',text:'已撤销刚才的改动。'});render();toast('已撤销')}return}
+    case 'aiClear':aiMsgs=[];aiTurns=[];return render();
+    case 'scanBill':return $('#f-scan').click();
+    case 'newExp':return expForm();
+    case 'viewE':return viewE(id);
+    case 'editE':return expForm(id);
+    case 'expPaid':{const x=S.expenses.find(e=>e.id===id);x.paid=true;save();render();viewE(id);return toast('已标记为已付款')}
+    case 'delE':{if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='再按一次确认删除';return}S.expenses=S.expenses.filter(e=>e.id!==id);save();closeModal();render();return toast('支出已删除')}
+    case 'newSup':return custForm(null,'S');
+    case 'editBudget':return editBudget();
+    case 'repMode':repMode=b.dataset.m;return render();
+    case 'pickCust':return $('#f-cust').click();
+    case 'parsePaste':return previewCust($('#custPaste').value,'');
+    case 'copyTpl':{const done=()=>toast('范本已复制');try{navigator.clipboard.writeText(TEMPLATE).then(done,()=>{$('#custPaste').value=TEMPLATE;toast('已把范本放进输入框')})}catch(err){$('#custPaste').value=TEMPLATE}return}
+    case 'doImport':return doImport();
+    case 'files':return files();
+    case 'pickDoc':return $('#f-doc').click();
+    case 'seeDoc':{const f=S.files.find(x=>x.id===id);$('#docView').innerHTML=`<img src="${f.data}" alt="${esc(f.name)}" style="border-radius:10px;border:1px solid var(--line)">`;return}
+    case 'rmDoc':S.files=S.files.filter(x=>x.id!==id);save();return files();
+    case 'einv':return einv();
+    case 'pdf':return exportPDF(b.dataset.k,id,b);
+    case 'wa':return waSend(b.dataset.k,id);
+    case 'reset':{
+      const l=document.getElementById('resetLbl');
+      if(!resetArm){resetArm=true;if(l)l.textContent='再按一次确认';setTimeout(()=>{resetArm=false;if(l)l.textContent=l.closest('.item')?'重置示例数据':'重置示例'},3000);return}
+      resetArm=false;S=withExtra(sample());S.files=[];S.company.theme=0;S.hide=false;save();go('home');return toast('已恢复示例数据')}
+  }
+});
+$('#f-logo').onchange=e=>{const f=e.target.files[0];if(f)loadLogo(f);e.target.value=''};
+$('#f-cust').onchange=e=>{const f=e.target.files[0];if(f)readCustFile(f);e.target.value=''};
+$('#f-scan').onchange=e=>{const f=e.target.files[0];if(f)scanBill(f);e.target.value=''};
+$('#f-aiimg').onchange=e=>{const f=e.target.files[0];if(f){aiPhoto=f;drawAtt();$('#askIn')?.focus()}e.target.value=''};
+$('#f-restore').onchange=e=>{const f=e.target.files[0];if(f)readRestore(f);e.target.value=''};
+$('#f-doc').onchange=e=>{if(e.target.files.length)addDocs(e.target.files);e.target.value=''};
+/* ---------- Google Drive backup (uses the viewer's own Google Drive connector) ---------- */
+const DRV={server:'Google Drive',folder:'账簿通备份',marker:'AKAUN-BACKUP-v1',busy:false,mcp:undefined,timer:null};
+function drvState(){try{return Object.assign({on:false,last:'',lastAt:0,folderId:''},JSON.parse(localStorage.getItem('akaun-drive'))||{})}catch(e){return {on:false,last:'',lastAt:0,folderId:''}}}
+function drvSet(d){try{localStorage.setItem('akaun-drive',JSON.stringify(d))}catch(e){}}
+async function drvCall(tool,input){
+  if(DRV.mcp===undefined){try{DRV.mcp=await claude.use('mcp')}catch(e){DRV.mcp=null}}
+  if(!DRV.mcp)throw new Error('no_mcp');
+  let r;
+  if(typeof DRV.mcp.server==='function'){const s=await DRV.mcp.server(DRV.server);r=await s[tool](input)}
+  else r=await DRV.mcp.callTool(DRV.server,tool,input);
+  return drvPayload(r);
+}
+function drvPayload(r){
+  let p=(r&&r.payload!==undefined)?r.payload:r;
+  if(p&&p.structuredContent)p=p.structuredContent;
+  if(p&&Array.isArray(p.content)){const t=p.content.map(x=>x&&x.text||'').join('');try{return JSON.parse(t)}catch(e){return t}}
+  if(typeof p==='string'){try{return JSON.parse(p)}catch(e){return p}}
+  return p;
+}
+function drvStrings(o,out=[]){if(typeof o==='string')out.push(o);else if(Array.isArray(o))o.forEach(x=>drvStrings(x,out));else if(o&&typeof o==='object')Object.values(o).forEach(x=>drvStrings(x,out));return out}
+function drvFiles(o,out=[]){if(Array.isArray(o))o.forEach(x=>drvFiles(x,out));else if(o&&typeof o==='object'){if(o.id&&(o.title||o.name))out.push(o);else Object.values(o).forEach(x=>drvFiles(x,out))}return out}
+function drvId(o){const f=drvFiles(o)[0];if(f)return f.id;return o&&(o.id||o.fileId)||''}
+function drvErr(e){
+  const m=String(e&&(e.code||e.message)||e);
+  if(/no_mcp|unavailable|not_connected|server_not_connected/i.test(m))return '没连上 Google Drive。请确认你的 Claude 账号已连接 Google Drive，并用 claude.ai 打开这个页面。';
+  if(/denied|consent|authz|permission/i.test(m))return '你没有允许这个页面使用 Google Drive，所以没有备份。';
+  return 'Google Drive 操作失败：'+m.slice(0,120);
+}
+async function drvFolder(){
+  const d=drvState();if(d.folderId)return d.folderId;
+  const q="title = '"+DRV.folder+"' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+  const found=drvFiles(await drvCall('search_files',{query:q,pageSize:1,excludeContentSnippets:true}));
+  let id=found[0]&&found[0].id;
+  if(!id)id=drvId(await drvCall('create_file',{title:DRV.folder,mimeType:'application/vnd.google-apps.folder'}));
+  if(id){d.folderId=id;drvSet(d)}
+  return id;
+}
+function stamp(){const n=new Date(),p=x=>String(x).padStart(2,'0');return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+'-'+p(n.getHours())+p(n.getMinutes())}
+async function driveBackup(auto){
+  if(DRV.busy)return;DRV.busy=true;
+  try{
+    const parent=await drvFolder();
+    const body={title:'akaun-backup-'+stamp()+'.txt',textContent:DRV.marker+'\n'+JSON.stringify(S),contentMimeType:'text/plain',disableConversionToGoogleType:true};
+    if(parent)body.parentId=parent;
+    const r=await drvCall('create_file',body);
+    if(!drvId(r)&&!(r&&typeof r==='object'))throw new Error('没有收到 Drive 的确认');
+    const d=drvState();d.on=true;d.last=new Date().toISOString();d.lastAt=Date.now();drvSet(d);
+    toast(auto?'已自动备份到 Google Drive':'已备份到 Google Drive「'+DRV.folder+'」');
+  }catch(e){if(!auto)toast(drvErr(e));else try{console.warn('drive auto backup',e)}catch(_){}}
+  finally{DRV.busy=false;if(!$('#ov').hidden&&$('#drvBox'))driveModal()}
+}
+function driveAuto(){
+  const d=drvState();if(!d.on)return;
+  if(Date.now()-d.lastAt<24*3600*1000)return;
+  clearTimeout(DRV.timer);DRV.timer=setTimeout(()=>driveBackup(true),20000);
+}
+async function driveRestore(btn){
+  if(DRV.busy)return;
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='再按一次：用 Drive 的备份覆盖现在的数据';return}
+  DRV.busy=true;btn.disabled=true;btn.textContent='读取中…';
+  try{
+    const q="title contains 'akaun-backup' and mimeType = 'text/plain' and trashed = false";
+    const list=drvFiles(await drvCall('search_files',{query:q,orderBy:'modifiedTime desc',pageSize:5,excludeContentSnippets:true}));
+    if(!list.length){toast('Drive 里还没有找到账簿通的备份');return}
+    const txt=drvStrings(await drvCall('read_file_content',{fileId:list[0].id})).join('\n');
+    const at=txt.indexOf(DRV.marker),a=txt.indexOf('{',at<0?0:at),z=txt.lastIndexOf('}');
+    if(at<0||a<0||z<a)throw new Error('备份文件内容读不出来');
+    const data=JSON.parse(txt.slice(a,z+1));
+    if(!data||!data.company||!Array.isArray(data.invoices))throw new Error('这不是账簿通的备份文件');
+    S=data;if(!saveChecked())return;closeModal();go('home');toast('已从 Drive 恢复：'+(list[0].title||list[0].name||''));
+  }catch(e){toast(drvErr(e))}
+  finally{DRV.busy=false;btn.disabled=false}
+}
+function driveModal(){
+  const d=drvState(),demo=S.company&&S.company.name==='Contoh Strategi Sdn. Bhd.';
+  openModal('Google Drive 备份',`<div id="drvBox" style="display:flex;flex-direction:column;gap:12px">
+    <p style="margin:0">备份会存到你自己 Google Drive 的「${DRV.folder}」文件夹，每次一个新文件，旧备份不会被覆盖。</p>
+    ${demo?'<div class="note"><b>提醒：</b>现在还是示范资料。可以先试备份，但真正开始记账后再备份才有意义。</div>':''}
+    <div class="panel" style="box-shadow:none;border:1px solid var(--line)"><div>最近一次备份：<b>${d.last?new Date(d.last).toLocaleString('zh-CN'):'还没有'}</b></div>
+    <div style="margin-top:8px" class="row"><button class="btn pri" data-act="driveSave" ${DRV.busy?'disabled':''}>${DRV.busy?'处理中…':'立即备份到 Drive'}</button>
+    <button class="btn" data-act="driveLoad">从 Drive 恢复最新备份</button></div></div>
+    <button class="btn" data-act="driveAutoT">${d.on?'✓ 已开启':'未开启'}：有改动时每天自动备份一次</button>
+    <small style="color:var(--muted)">自动备份要先成功做过一次手动备份才会生效。第一次使用时，Claude 会请你允许这个页面使用 Google Drive。账目资料只会存到你自己的 Drive，不会发给别人。</small></div>`);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ov').hidden)closeModal()});
+render();
+</script>
+
+</body></html>
