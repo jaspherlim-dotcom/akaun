@@ -704,6 +704,7 @@ function me(){
       <button class="item" data-act="einv"><span class="ib c-yellow">${ic('shield')}</span><span class="mid"><b>e-Invoice 资料检查</b><span>看看哪些客户还缺 TIN</span></span>${ic('chev')}</button>
       <button class="item" data-act="drive"><span class="ib c-blue" style="font-size:20px">☁</span><span class="mid"><b>Google Drive 备份</b><span>把账目存到你自己的 Drive，换设备也找得回</span></span></button>
       <button class="item" data-act="backup"><span class="ib c-green">${ic('upload')}</span><span class="mid"><b>备份档 / 还原 / 导出给会计师</b><span>上次备份档：${S.lastBackup?fmtD(S.lastBackup):'还没备份过'} · CSV 给 Excel 用</span></span>${ic('chev')}</button>
+      <button class="item" data-act="blank"><span class="ib c-orange" style="font-size:20px">✕</span><span class="mid"><b>清空示范资料，开始记账</b><span>删除所有示范客户、单据和支出，从空白开始</span></span></button>
       <button class="item" data-act="reset"><span class="ib c-pink">${ic('reset')}</span><span class="mid"><b id="resetLbl">重置示例数据</b><span>清除你的修改，恢复示例</span></span></button>
     </div>
     <div class="note"><b>注意：</b>这是原型，所有资料只存在这台设备的浏览器里，换设备或清除浏览器数据就会不见。正式版需要云端数据库和登入。</div>
@@ -888,6 +889,14 @@ function withExtra(o){
     o.invoices.push({id,no:'INV-'+m.slice(2).replace('-','')+'-0001',date:m+'-05',due:m+'-28',cust:c,fromQ:'',discount:0,notes:'',items:[{d:'Consulting services – '+m,q:1,p:rev[i],t:'st8'}]});
     o.receipts.push({id:'hr'+i,no:'OR-'+m.slice(2).replace('-','')+'-0001',date:m+'-20',inv:id,amt:r2(rev[i]*1.08),method:'DuitNow',ref:''});
   });
+  return o;
+}
+function blank(){
+  const o=sample(),keep=S&&S.company?S.company:o.company;
+  o.customers=[];o.quotes=[];o.invoices=[];o.receipts=[];o.suppliers=[];o.expenses=[];o.files=[];o.hide=false;
+  o.seq={QT:0,INV:0,OR:0,EXP:0};
+  o.budget={rev:0,cats:{cos:0,rent:0,staff:0,util:0,mkt:0,prof:0,travel:0,office:0,ent:0,other:0}};
+  o.company=Object.assign({},o.company,{name:'我的公司',ssm:'',tin:'',sst:'',sstOn:false,msic:'',addr:'',phone:'',email:'',bank:'',tagline:'',website:'',logo:keep.logo||'',theme:keep.theme||0});
   return o;
 }
 if(!S.suppliers)withExtra(S);
@@ -1284,6 +1293,8 @@ document.addEventListener('click',e=>{
     case 'editCo':return editCo();
     case 'brand':return brand();
     case 'drive':return driveModal();
+    case 'blank':{if(b.dataset.arm!=='1'){b.dataset.arm='1';const l=b.querySelector('b');if(l)l.textContent='再按一次确认：删除全部示范资料';setTimeout(()=>{b.dataset.arm='';if(l)l.textContent='清空示范资料，开始记账'},4000);return}
+      S=blank();save();go('home');return toast('已清空，可以开始记账了')}
     case 'driveSave':return driveBackup(false);
     case 'driveLoad':return driveRestore(b);
     case 'driveAutoT':{const d=drvState();d.on=!d.on;drvSet(d);return driveModal()}
